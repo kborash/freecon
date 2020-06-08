@@ -14,9 +14,11 @@ defmodule Freecon.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: Freecon.PubSub},
       # Start the Endpoint (http/https)
-      FreeconWeb.Endpoint
+      FreeconWeb.Endpoint,
       # Start a worker by calling: Freecon.Worker.start_link(arg)
       # {Freecon.Worker, arg}
+      {Registry, keys: :unique, name: Freecon.GameRegistry},
+      {DynamicSupervisor, strategy: :one_for_one, name: Freecon.GameSupervisor}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

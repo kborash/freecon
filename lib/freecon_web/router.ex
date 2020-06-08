@@ -18,6 +18,7 @@ defmodule FreeconWeb.Router do
     pipe_through :browser
 
     live "/", PageLive, :index
+    live "/room/round/trade", TradeScreenLive
   end
 
   # Other scopes may use custom stacks.
