@@ -1,0 +1,3 @@
+<h2>Professor Signup</h2>
+<hr />
+<%= render("form.html", %{professor: @professor, conn: @conn}) %>

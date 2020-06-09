@@ -8,7 +8,7 @@ defmodule FreeconWeb.TradeScreenLive do
       socket,
       bid: nil,
       ask: nil,
-      quantity: 1,
+      quantity: nil,
       mode: "bid"
     )
     {:ok, socket}
@@ -35,66 +35,14 @@ defmodule FreeconWeb.TradeScreenLive do
     }
   end
 
-  def render(assigns) do
-    ~L"""
-      <form phx-submit="bid">
-      <table>
-        <tbody>
-          <tr>
-            <td>Bid</td>
-            <td><input type="number" min="1" name="bid" value="<%= @bid %>"></td>
-          </tr>
-          <tr>
-            <td>Quantity</td>
-            <td><input type="number" min="1" name="quantity" value="<%= @quantity %>"></td>
-          </tr>
-        </tbody>
-      </table>
-      <input type="submit" value="Submit">
-      </form>
+  def handle_event("bid-mode", _, socket) do
+    socket = assign(socket, :mode, "bid")
+    {:noreply, socket}
+  end
 
-      <form phx-submit="ask">
-      <table>
-        <tbody>
-          <tr>
-            <td>Ask</td>
-            <td><input type="number" min="1" name="ask" value="<%= @ask %>"></td>
-          </tr>
-          <tr>
-            <td>Quantity</td>
-            <td><input type="number" min="1" name="quantity" value="<%= @quantity %>"></td>
-          </tr>
-        </tbody>
-      </table>
-      <input type="submit" value="Submit">
-      </form>
-
-      <h2 class=text-3xl text-center">Market Prices</h2>
-      <div>Market Bid: <%= @game.market_bid %></div>
-      <div>Market Ask: <%= @game.market_ask %></div>
-
-      <hr />
-      <div id="asks">
-        <h2 class="font-bold text-2xl">Asks</h2>
-        <%= for order <- @game.asks do %>
-          <p><%= order[:quantity] %> at <%= order[:price] %></p>
-        <% end %>
-      </div>
-      <div id="bids">
-        <h2 class="font-bold text-2xl">Bids</h2>
-        <%= for order <- @game.bids do %>
-          <p><%= order[:quantity] %> at <%= order[:price] %></p>
-        <% end %>
-      </div>
-      <hr />
-      <div id="transactions">
-        <h2 class="font-bold text-2xl">Cleared Transactions</h2>
-        <%= for transaction <- @game.transactions do %>
-        <p><%= transaction[:quantity] %> at <%= transaction[:price] %></p>
-        <% end %>
-      </div>
-
-    """
+  def handle_event("ask-mode", _, socket) do
+    socket = assign(socket, :mode, "ask")
+    {:noreply, socket}
   end
 
   def handle_event("bid", %{"bid" => bid, "quantity" => quantity}, socket) do
@@ -139,7 +87,7 @@ defmodule FreeconWeb.TradeScreenLive do
     game = GenServer.call(via_tuple(name), :game)
     assign(socket,
       game: game,
-      quanitiy: 1,
+      quanitiy: nil,
       bid: nil,
       ask: nil
     )

@@ -1,0 +1,59 @@
+<div>
+  <div id="market-prices">
+    <h2 class="text-center text-3xl">Market Prices</h2>
+    <p class="text-center">
+      <span>Bid: <%= @game.market_bid %></span>
+      <span>Ask: <%= @game.market_ask %></span>
+    </p>
+    <div class="text-center">
+      <button class="bg-blue-500 text-white font-semibold px-4 py-2 rounded" phx-click="bid-mode">Buy</button>
+      <button class="bg-red-500 text-white font-semibold px-4 py-2 rounded" phx-click="ask-mode">Sell</button>
+    </div>
+  </div>
+  <hr class="mt-5 mb-5" />
+  <div class="text-center">
+  <%= if @mode == "bid" do %>
+  <form phx-submit="bid">
+  <div>
+    Bid: <input type="number" required min="1" name="bid" value="<%= @bid %>"><br />
+    Quantity: <input type="number" required min="1" name="quantity" value="<%= @quantity %>"><br />
+    <input type="submit" value="Submit">
+  </div>
+  </form>
+  <% end %>
+
+  <%= if @mode == "ask" do %>
+  <form phx-submit="ask">
+  <div>
+    Ask: <input type="number" required min="1" name="ask" value="<%= @ask %>"><br />
+    Quantity: <input type="number" required min="1" name="quantity" value="<%= @quantity %>"><br />
+    <input type="submit" value="Submit">
+  </div>
+  </form>
+  <% end %>
+  </div>
+  <hr />
+  <div class="flex align-top justify-center">
+    <div id="asks" class="w-auto inline-block rounded border border-solid border-black p-1 m-1 divide-y">
+      <h2 class="font-bold text-2xl">Asks</h2>
+      <%= for order <- @game.asks do %>
+        <p><%= order[:quantity] %> at <%= order[:price] %></p>
+      <% end %>
+    </div>
+    <div id="bids" class="w-auto inline-block rounded border border-solid border-black p-1 m-1 divide-y">
+      <h2 class="font-bold text-2xl">Bids</h2>
+      <%= for order <- @game.bids do %>
+        <p><%= order[:quantity] %> at <%= order[:price] %></p>
+      <% end %>
+    </div>
+    <br class="w-full" />
+  </div>
+  <div class="flex justify-center">
+    <div id="transactions" class="w-auto inline-block rounded border border-solid border-black p-1 m-1 divide-y">
+      <h2 class="font-bold text-2xl">Cleared Transactions</h2>
+      <%= for transaction <- @game.transactions do %>
+      <p><%= transaction[:quantity] %> at <%= transaction[:price] %></p>
+      <% end %>
+    </div>
+  </div>
+</div>

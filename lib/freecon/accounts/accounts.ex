@@ -14,7 +14,7 @@ defmodule Freecon.Accounts do
     |> Repo.insert
   end
 
-  def get_professor(id), do: Professor.get(Professor, id)
+  def get_professor(id), do: Repo.get(Professor, id)
 
   def get_professor_by_email(email) do
     Repo.get_by(Professor, email: email)

@@ -19,6 +19,12 @@ defmodule FreeconWeb.Router do
 
     live "/", PageLive, :index
     live "/room/round/trade", TradeScreenLive
+
+    resources "/professors", ProfessorController, only: [:new, :create]
+    resources "/sessions", SessionController, only: [:create]
+
+    get "/login", SessionController, :new
+    get "/logout", SessionController, :delete
   end
 
   # Other scopes may use custom stacks.
