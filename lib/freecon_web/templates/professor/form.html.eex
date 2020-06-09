@@ -1,23 +1,31 @@
-<%= form_for @professor, Routes.professor_path(@conn, :create), fn f -> %>
-  <%= label f, :name, "Name:" %>
-  <br />
-  <%= text_input f, :name %>
-  <%= error_tag f, :name %>
-  <br />
-  <%= label f, :email, "Email:" %>
-  <br />
-  <%= text_input f, :email %>
-  <%= error_tag f, :email %>
-  <br />
-  <%= label f, :password, "Password:" %>
-  <br />
-  <%= password_input f, :password %>
-  <%= error_tag f, :password %>
-  <br />
-  <%= label f, :password_confirmation, "Confirm your password:" %>
-  <br />
-  <%= password_input f, :password_confirmation %>
-  <%= error_tag f, :password_confirmation %>
-  <br />
-  <%= submit "Sign Up" %>
-<% end %>
+<div class="flex justify-center mt-5">
+  <div class="w-full max-w-xs">
+    <%= form_for @professor, Routes.professor_path(@conn, :create), [class: "bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"], fn f -> %>
+    <div class="mb-4">
+    <%= label f, :name, "Name:", class: "block text-gray-700 text-sm font-bold mb-2" %>
+    <%= text_input f, :name, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+    <%= error_tag f, :name %>
+    </div>
+
+    <div class="mb-4">
+    <%= label f, :email, "Email:",class: "block text-gray-700 text-sm font-bold mb-2" %>
+    <%= text_input f, :email, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+    <%= error_tag f, :email %>
+    </div>
+
+    <div class="mb-4">
+    <%= label f, :password, "Password:",class: "block text-gray-700 text-sm font-bold mb-2" %>
+    <%= password_input f, :password, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+    <%= error_tag f, :password %>
+    </div>
+
+    <div class="mb-4">
+    <%= label f, :password_confirmation, "Confirm your password:", class: "block text-gray-700 text-sm font-bold mb-2" %>
+    <%= password_input f, :password_confirmation, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+    <%= error_tag f, :password_confirmation %>
+    </div>
+
+    <%= submit "Sign Up", class: "bg-blue-500 text-white font-semibold px-4 py-2 rounded" %>
+    <% end %>
+  </div>
+</div>
