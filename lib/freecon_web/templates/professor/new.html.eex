@@ -1,5 +1,5 @@
 <div class="bg-gray-200 h-screen">
-  <h2 class="text-center font-bold text-4xl mb-2">Professor Signup</h2>
+  <h2 class="text-center font-bold text-4xl mb-2">Professor Sign Up</h2>
   <hr />
   <%= render("form.html", %{professor: @professor, conn: @conn}) %>
 </div>

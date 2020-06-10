@@ -1,15 +1,23 @@
-<div>
-  <%= form_tag Routes.session_path(@conn, :create) do %>
-    <label>
-      Email:<br />
-      <input type="text" name="email">
-    </label>
-    <br />
-    <label>
-      Password:<br />
-      <input type="password" name="password">
-    </label>
-    <br />
-    <%= submit "Login" %>
-  <% end %>
+<div class="bg-gray-200 h-screen">
+  <h2 class="text-center font-bold text-4xl mb-2">Professor Sign In</h2>
+  <hr />
+  <div class="flex justify-center mt-5">
+    <div class="w-full max-w-xs">
+      <%= form_tag Routes.session_path(@conn, :create), [class: "bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"] do %>
+        <div class="mb-4">
+          <label>
+            <span class="block text-gray-700 text-sm font-bold mb-2">Email:</span>
+            <input type="text" name="email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          </label>
+        </div>
+        <div class="mb-4">
+          <label>
+            <span class="block text-gray-700 text-sm font-bold mb-2">Password:</span>
+            <input type="password" name="password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          </label>
+        </div>
+        <%= submit "Login", class: "bg-blue-500 text-white font-semibold px-4 py-2 rounded" %>
+      <% end %>
+    </div>
+  </div>
 </div>

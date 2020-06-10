@@ -17,7 +17,7 @@ defmodule FreeconWeb.ProfessorController do
     else
       {:error, professor} ->
         conn
-        |> put_flash(:error, "Failed t create account!")
+        |> put_flash(:error, "Failed to create account.")
         |> render("new.html", professor: professor)
     end
   end
