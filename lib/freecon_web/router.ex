@@ -10,6 +10,10 @@ defmodule FreeconWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :protected do
+    plug FreeconWeb.VerifyProfessorSession
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -25,6 +29,12 @@ defmodule FreeconWeb.Router do
 
     get "/login", SessionController, :new
     get "/logout", SessionController, :delete
+  end
+
+  scope "/", FreeconWeb do
+    pipe_through [:browser, :protected]
+
+    live "/dashboard", ProfessorDashboard
   end
 
   # Other scopes may use custom stacks.

@@ -3,7 +3,7 @@ defmodule FreeconWeb.TradeScreenLive do
 
   alias Freecon.Game
 
-  def mount(_params, _session, socket) do#
+  def mount(_params, _session, socket) do
     socket = assign(
       socket,
       bid: nil,
