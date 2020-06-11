@@ -13,6 +13,7 @@ defmodule FreeconWeb.ProfessorController do
     with {:ok, professor} <- Accounts.create_professor(professor_params) do
       conn
       |> put_flash(:info, "Account created!")
+      |> put_session(:professor, %{ id: professor.id, email: professor.email})
       |> redirect(to: "/")
     else
       {:error, professor} ->
