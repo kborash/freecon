@@ -8,7 +8,7 @@ defmodule Freecon.Experiments.Room do
   schema "rooms" do
     field :name, :string
     field :code, :string
-    field :active, :boolean
+    field :active, :boolean, default: true
 
     belongs_to :professor, Professor
 
