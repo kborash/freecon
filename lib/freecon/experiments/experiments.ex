@@ -25,8 +25,9 @@ defmodule Freecon.Experiments do
 
   def active_rooms(professor_id) do
     query = from r in Room,
-            where: r.professor_id == ^professor_id and r.active,
-            select: r
+                 where: r.professor_id == ^professor_id and r.active,
+                 order_by: [desc: :updated_at],
+                 select: r
 
     Repo.all(query)
   end
@@ -34,6 +35,7 @@ defmodule Freecon.Experiments do
   def closed_rooms(professor_id) do
     query = from r in Room,
                  where: r.professor_id == ^professor_id and r.active == false,
+                 order_by: [desc: :updated_at],
                  select: r
 
     Repo.all(query)
