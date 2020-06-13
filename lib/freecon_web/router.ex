@@ -31,10 +31,11 @@ defmodule FreeconWeb.Router do
     get "/logout", SessionController, :delete
   end
 
-  scope "/", FreeconWeb do
+  scope "/dashboard/", FreeconWeb do
     pipe_through [:browser, :protected]
 
-    live "/dashboard", ProfessorDashboard
+    live "/", ProfessorDashboard
+    live "/room/:id", RoomLive
   end
 
   # Other scopes may use custom stacks.
@@ -54,7 +55,7 @@ defmodule FreeconWeb.Router do
 
     scope "/" do
       pipe_through :browser
-      live_dashboard "/dashboard", metrics: FreeconWeb.Telemetry
+      live_dashboard "/monitoring_dashboard", metrics: FreeconWeb.Telemetry
     end
   end
 end

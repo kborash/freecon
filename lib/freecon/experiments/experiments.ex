@@ -41,6 +41,15 @@ defmodule Freecon.Experiments do
     Repo.all(query)
   end
 
+  def get_room_for_professor(room_id, professor_id) do
+    query = from r in Room,
+                 where: r.professor_id == ^professor_id and r.id == ^room_id,
+                 select: r
+
+    Repo.all(query)
+  end
+
+
   defp generate_room_code() do
     ?A..?Z
     |> Enum.take_random(10)
