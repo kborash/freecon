@@ -17,7 +17,7 @@ defmodule Freecon.Experiments.Room do
 
   def changeset(%Room{}=room, attrs) do
     room
-    |> cast(attrs, [:name, :code, :professor_id])
+    |> cast(attrs, [:name, :code, :active, :professor_id])
     |> validate_required([:name, :code, :professor_id])
   end
 end
