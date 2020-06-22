@@ -1,22 +1,24 @@
-defmodule FreeconWeb.TradeScreenLive do
+defmodule FreeconWeb.ParticipantLive do
   use FreeconWeb, :live_view
 
   alias Freecon.Game
 
   def mount(_params, _session, socket) do
-    socket = assign(
-      socket,
-      bid: nil,
-      ask: nil,
-      quantity: nil,
-      mode: "bid"
-    )
+    socket =
+      assign(
+        socket,
+        bid: nil,
+        ask: nil,
+        quantity: nil,
+        mode: "bid"
+      )
+
     {:ok, socket}
   end
 
-  def handle_params(%{"name" => name} = _params, _uri, socket) do
-    Phoenix.PubSub.subscribe(Freecon.PubSub, name)
-    {:noreply, assign_game(socket, name)}
+  def handle_params(%{"code" => room_code, "participant" => participant_uuid} = _params, _uri, socket) do
+    Phoenix.PubSub.subscribe(Freecon.PubSub, room_code)
+    {:noreply, assign_game(socket, room_code)}
   end
 
   def handle_params(_params, _uri, socket) do
@@ -25,14 +27,20 @@ defmodule FreeconWeb.TradeScreenLive do
       |> Enum.take_random(6)
       |> List.to_string()
 
-    {:ok, _pid} = DynamicSupervisor.start_child(Freecon.GameSupervisor, {Game, name: via_tuple(name)})
+    {:ok, _pid} =
+      DynamicSupervisor.start_child(Freecon.GameSupervisor, {Game, name: via_tuple(name)})
 
     {:noreply,
-      push_redirect(
-        socket,
-        to: FreeconWeb.Router.Helpers.live_path(socket, FreeconWeb.TradeScreenLive, name: name)
-      )
-    }
+     push_redirect(
+       socket,
+       to:
+         FreeconWeb.Router.Helpers.live_path(
+           socket,
+           FreeconWeb.ParticipantLive,
+           code: "room_code",
+           participant: "participant_uuid"
+         )
+     )}
   end
 
   def handle_event("bid-mode", _, socket) do
@@ -60,6 +68,7 @@ defmodule FreeconWeb.TradeScreenLive do
   end
 
   defp check_bid(socket, bid, quantity) when bid == "", do: socket
+
   defp check_bid(%{assigns: %{name: name}} = socket, bid, quantity) do
     :ok = GenServer.cast(via_tuple(name), {:bid, bid, quantity})
     :ok = Phoenix.PubSub.broadcast(Freecon.PubSub, name, :update)
@@ -67,6 +76,7 @@ defmodule FreeconWeb.TradeScreenLive do
   end
 
   defp check_ask(socket, ask, quantity) when ask == "", do: socket
+
   defp check_ask(%{assigns: %{name: name}} = socket, ask, quantity) do
     :ok = GenServer.cast(via_tuple(name), {:ask, ask, quantity})
     :ok = Phoenix.PubSub.broadcast(Freecon.PubSub, name, :update)
@@ -85,6 +95,7 @@ defmodule FreeconWeb.TradeScreenLive do
 
   defp assign_game(%{assigns: %{name: name}} = socket) do
     game = GenServer.call(via_tuple(name), :game)
+
     assign(socket,
       game: game,
       quanitiy: nil,
