@@ -2,6 +2,7 @@ defmodule FreeconWeb.RoomLive do
   use FreeconWeb, :live_view
 
   alias Freecon.Experiments
+  alias Freecon.Game
 
   def mount(%{"id" => room_id}, session, socket) do
     room = Experiments.get_room_for_professor(room_id, session["professor"][:id])
@@ -65,6 +66,12 @@ defmodule FreeconWeb.RoomLive do
   end
 
   def handle_event("launch-room", _, socket) do
+    # TODO: Start the server for the room code
+    {:ok, _pid} =
+      DynamicSupervisor.start_child(Freecon.GameSupervisor, {Game, name: via_tuple(socket.assigns.room.code)})
+
+
+    Phoenix.PubSub.broadcast(Freecon.PubSub, socket.assigns.room.code, :start)
     {:noreply, push_redirect(socket, to: Routes.live_path(socket, FreeconWeb.RoomMonitor, socket.assigns.room.id))}
   end
 
@@ -72,5 +79,9 @@ defmodule FreeconWeb.RoomLive do
     socket = assign(socket,
       games: Experiments.games_for_room(socket.assigns.room.id),
     )
+  end
+
+  defp via_tuple(name) do
+    {:via, Registry, {Freecon.GameRegistry, name}}
   end
 end

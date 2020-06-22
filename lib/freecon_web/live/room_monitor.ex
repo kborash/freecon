@@ -1,8 +1,9 @@
 defmodule FreeconWeb.RoomMonitor do
   use FreeconWeb, :live_view
 
-  # TODO: Handle extracting room id
-  def mount(_, _, socket) do
+  def mount(%{"id" => room_id}, _, socket) do
+
+    Phoenix.PubSub.subscribe(Freecon.PubSub, "room_code")
     {:ok, socket}
   end
 end
