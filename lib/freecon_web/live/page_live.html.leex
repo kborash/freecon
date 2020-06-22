@@ -1,1 +1,22 @@
-<h1 class="text-blue-500 text-5xl font-bold text-center">Free Econ Experiments</h1>
+<div class="homepage-hero h-screen">
+  <h1 class="text-shadow-black text-white text-5xl font-bold text-center pt-4 mb-2">Free Econ Experiments</h1>
+  <div class="flex justify-center">
+    <div class="w-full max-w-xs">
+      <form phx-submit="join" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <div class="mb-4">
+          <label>
+            <span class="block text-gray-700 text-sm font-bold mb-2">Name:</span>
+            <input type="text" name="name" value="<%= @name %>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          </label>
+        </div>
+        <div class="mb-4">
+          <label>
+            <span class="block text-gray-700 text-sm font-bold mb-2">Room Code:</span>
+            <input type="text" name="code" value="<%= @room_code %>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          </label>
+        </div>
+        <input type="submit" class="bg-blue-500 text-white font-semibold text-3xl px-4 py-2 rounded mt-4" value="Join Experiment" />
+      </form>
+    </div>
+  </div>
+</div>

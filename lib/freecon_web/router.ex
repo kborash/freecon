@@ -22,10 +22,12 @@ defmodule FreeconWeb.Router do
     pipe_through :browser
 
     live "/", PageLive, :index
-    live "/room/round/trade", TradeScreenLive
+    live "/waiting", WaitingLive
+    live "/participant", ParticipantLive
 
     resources "/professors", ProfessorController, only: [:new, :create]
     resources "/sessions", SessionController, only: [:create]
+    resources "/participants", ParticipantSessionController, only: [:create]
 
     get "/login", SessionController, :new
     get "/logout", SessionController, :delete
