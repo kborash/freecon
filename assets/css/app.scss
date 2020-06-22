@@ -2,6 +2,9 @@
 /* @import "./phoenix.css"; */
 @import "../node_modules/nprogress/nprogress.css";
 
+@import "homepage.scss";
+@import "custom.scss";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
