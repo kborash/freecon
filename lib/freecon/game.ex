@@ -1,12 +1,14 @@
 defmodule Freecon.Game do
   use GenServer, restart: :transient
 
-  defstruct market_bid: nil, market_ask: nil, bids: [], asks: [], transactions: []
+  defstruct market_bid: nil, market_ask: nil, bids: [], asks: [], transactions: [], participants: %{}
   alias Freecon.Game
 
   @timeout 600_000
 
   def start_link(options) do
+    # TODO: Load game parameters based on room code
+
     GenServer.start_link(__MODULE__, %Game{}, options)
   end
 
@@ -39,14 +41,9 @@ defmodule Freecon.Game do
   def process_ask(game, ask, quantity) do
     ask = String.to_integer(ask)
     quantity = String.to_integer(quantity)
-    IO.puts("\t*************")
-    IO.puts(length(game.asks))
     asks =
-      [[price: ask, quantity: quantity] | game.asks]
+      [[price: ask, quantity: quantity, posted: Time.utc_now()] | game.asks]
       |> Enum.sort(&(&1[:price] < &2[:price]))
-    IO.puts("\t$$$$$$$$$$")
-    IO.puts(length(asks))
-    IO.puts("\t@@@@@@@@@@")
 
     game
       |> struct(asks: asks)
@@ -58,7 +55,7 @@ defmodule Freecon.Game do
   def process_bid(game, bid, quantity) do
     bid = String.to_integer(bid)
     quantity = String.to_integer(quantity)
-    bids = [[price: bid, quantity: quantity] | game.bids] |> Enum.sort(&(&1[:price] > &2[:price]))
+    bids = [[price: bid, quantity: quantity, posted: Time.utc_now()] | game.bids] |> Enum.sort(&(&1[:price] > &2[:price]))
 
     game
       |> struct(bids: bids)
@@ -76,10 +73,16 @@ defmodule Freecon.Game do
             # Some of the high bid will need to be returned to the order book
             remainder_quantity = high_bid[:quantity] - low_ask[:quantity]
             process_transactions(struct(game, %{ transactions: game.transactions ++ [low_ask], asks: other_asks, bids: [[price: high_bid[:price], quantity: remainder_quantity] | other_bids]}))
-            low_ask[:quantity] > high_bid[:quantity] ->
+
+          low_ask[:quantity] > high_bid[:quantity] ->
             # Some of the low ask will need to be returned to the order book
             remainder_quantity = low_ask[:quantity] - high_bid[:quantity]
+            clearing_price = case Time.compare(low_ask[:posted], high_bid[:posted]) do
+              _ ->
+                100
+            end
             process_transactions(struct(game, %{ transactions: game.transactions ++ [high_bid], asks: [[price: low_ask[:price], quantity: remainder_quantity] | other_asks], bids: other_bids}))
+
           true ->
             struct(game, %{ transactions: game.transactions ++ [high_bid], asks: other_asks, bids: other_bids})
         end
@@ -90,6 +93,8 @@ defmodule Freecon.Game do
       game
     end
   end
+
+#  def clear_transaction()
 
   def set_market_rates(game) do
     game

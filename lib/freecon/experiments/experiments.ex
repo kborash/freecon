@@ -6,6 +6,7 @@ defmodule Freecon.Experiments do
   alias Freecon.Accounts.Professor
   alias Freecon.Experiments.Room
   alias Freecon.Experiments.Game
+  alias Freecon.Accounts.Participant
 
   def new_room do
     Room.changeset(%Room{}, %{})
@@ -50,6 +51,10 @@ defmodule Freecon.Experiments do
     Repo.all(query)
   end
 
+  def find_room_by_code(room_code) do
+    Repo.get_by(Room, code: room_code)
+  end
+
   def get_active_game(room_id) do
     query = from g in Game,
                  where: g.room_id == ^room_id and g.active == true,
@@ -71,6 +76,12 @@ defmodule Freecon.Experiments do
     # TODO: Add round creation logic
     %Game{}
     |> Game.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def join_room(attrs) do
+    %Participant{}
+    |> Participant.changeset(attrs)
     |> Repo.insert()
   end
 

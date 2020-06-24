@@ -10,8 +10,10 @@ use Mix.Config
 # which you should run after static files are built and
 # before starting your production server.
 config :freecon, FreeconWeb.Endpoint,
-  url: [host: "example.com", port: 80],
-  cache_static_manifest: "priv/static/cache_manifest.json"
+  url: [host: "freecon.brontworks.com", port: 80],
+  cache_static_manifest: "priv/static/cache_manifest.json",
+  server: true,
+  version: Application.spec(:freecon, :vsn)
 
 # Do not print debug messages in production
 config :logger, level: :info
