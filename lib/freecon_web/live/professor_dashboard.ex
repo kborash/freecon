@@ -44,7 +44,8 @@ defmodule FreeconWeb.ProfessorDashboard do
       parameters: %{
         rounds: 10,
         dividends: [1, 0.5, 1, 0.5, 1, 0.5, 1, 0.5, 1, 0.5],
-        endowment: 100
+        endowment: 100,
+        shares: 5
       },
       room_id: room.id
     })
