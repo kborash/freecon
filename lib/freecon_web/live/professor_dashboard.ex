@@ -19,7 +19,6 @@ defmodule FreeconWeb.ProfessorDashboard do
     <form phx-submit="add-room">
       <div class="ml-2 mt-2">
         <label>
-          <span class="mr-1"></span>
           <input class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Room name..." type="text" name="room_name" />
         </label>
         <input class="bg-blue-500 text-white font-semibold px-4 py-2 rounded" type="submit" value="Add Room" />
@@ -28,7 +27,7 @@ defmodule FreeconWeb.ProfessorDashboard do
 
     <h1 class="font-bold text-5xl">Active Rooms</h1>
     <%= for room <- @active_rooms do %>
-      <h2>Name: <%= room.name %>, Code: <%= room.code %> | <a class="hover:underline cursor-pointer" phx-click="deactivate-room" phx-value-room_id="<%= room.id %>">Deactivate</a></h2>
+      <h2>Name: <%= room.name %>, Code: <a class="hover:underline cursor-pointer" href="<%= Routes.live_path(@socket, FreeconWeb.RoomLive, room.id) %>"><%= room.code %></a> | <a class="hover:underline cursor-pointer" phx-click="deactivate-room" phx-value-room_id="<%= room.id %>">Deactivate</a></h2>
     <% end %>
 
     <h1 class="font-bold text-5xl">Inactive Rooms</h1>
@@ -40,6 +39,15 @@ defmodule FreeconWeb.ProfessorDashboard do
 
   def handle_event("add-room", %{"room_name" => room_name}, socket) do
     {:ok, room} = Experiments.create_room(%{professor_id: socket.assigns.professor[:id], name: room_name})
+    {:ok, game} = Experiments.create_game(%{
+      name: "Assets Trading",
+      parameters: %{
+        rounds: 10,
+        dividends: [1, 0.5, 1, 0.5, 1, 0.5, 1, 0.5, 1, 0.5],
+        endowment: 100
+      },
+      room_id: room.id
+    })
     socket = assign_rooms(socket)
     {:noreply, socket}
   end
