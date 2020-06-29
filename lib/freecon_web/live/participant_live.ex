@@ -10,7 +10,9 @@ defmodule FreeconWeb.ParticipantLive do
         bid: nil,
         ask: nil,
         quantity: nil,
-        mode: "bid"
+        mode: "bid",
+        participant: nil,
+        resources: nil
       )
 
     {:ok, socket}
@@ -18,29 +20,8 @@ defmodule FreeconWeb.ParticipantLive do
 
   def handle_params(%{"code" => room_code, "participant" => participant_uuid} = _params, _uri, socket) do
     Phoenix.PubSub.subscribe(Freecon.PubSub, room_code)
+    socket = assign(socket, participant: participant_uuid)
     {:noreply, assign_game(socket, room_code)}
-  end
-
-  def handle_params(_params, _uri, socket) do
-    name =
-      ?A..?Z
-      |> Enum.take_random(6)
-      |> List.to_string()
-
-    {:ok, _pid} =
-      DynamicSupervisor.start_child(Freecon.GameSupervisor, {Game, name: via_tuple(name)})
-
-    {:noreply,
-     push_redirect(
-       socket,
-       to:
-         FreeconWeb.Router.Helpers.live_path(
-           socket,
-           FreeconWeb.ParticipantLive,
-           code: "room_code",
-           participant: "participant_uuid"
-         )
-     )}
   end
 
   def handle_event("bid-mode", _, socket) do
@@ -96,11 +77,14 @@ defmodule FreeconWeb.ParticipantLive do
   defp assign_game(%{assigns: %{name: name}} = socket) do
     game = GenServer.call(via_tuple(name), :game)
 
+    resources = Enum.find(game.participants, fn p -> p.identifier == socket.assigns.participant end)
+
     assign(socket,
       game: game,
       quanitiy: nil,
       bid: nil,
-      ask: nil
+      ask: nil,
+      resources: resources
     )
   end
 end
