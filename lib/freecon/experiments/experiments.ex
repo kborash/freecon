@@ -79,6 +79,16 @@ defmodule Freecon.Experiments do
     |> Repo.insert()
   end
 
+  def find_game(game_id) do
+    Repo.get(Game, game_id)
+  end
+
+  def start_game(game_id) do
+    game = Repo.get(Game, game_id)
+    game = Ecto.Changeset.change(game, started: true)
+    Repo.update(game)
+  end
+
   def join_room(attrs) do
     %Participant{}
     |> Participant.changeset(attrs)
@@ -89,6 +99,14 @@ defmodule Freecon.Experiments do
     query = from g in Game,
             where: g.room_id == ^room_id,
             select: g
+
+    Repo.all(query)
+  end
+
+  def participants_in_room(room_id) do
+    query = from p in Participant,
+            where: p.room_id == ^room_id,
+            select: p
 
     Repo.all(query)
   end

@@ -8,7 +8,7 @@ defmodule Freecon.Experiments.Game do
   schema "games" do
     field :name, :string
     field :parameters, :map
-    field :active, :boolean, default: false
+    field :started, :boolean, default: false
     field :game_type, :string, default: "AssetBubble"
 
     belongs_to :room, Room
@@ -19,7 +19,7 @@ defmodule Freecon.Experiments.Game do
 
   def changeset(%Game{}=game, attrs) do
     game
-    |> cast(attrs, [:name, :parameters, :active, :room_id])
+    |> cast(attrs, [:name, :parameters, :started, :room_id])
     |> validate_required([:name, :parameters, :room_id])
   end
 end

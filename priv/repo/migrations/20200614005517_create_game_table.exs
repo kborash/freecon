@@ -5,7 +5,7 @@ defmodule Freecon.Repo.Migrations.CreateGameTable do
     create table(:games) do
       add :name, :string
       add :parameters, :map
-      add :active, :boolean
+      add :started, :boolean
       add :game_type, :string
 
       add :room_id, references(:rooms)
