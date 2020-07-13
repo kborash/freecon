@@ -1,7 +1,8 @@
 defmodule FreeconWeb.PageLive do
   use FreeconWeb, :live_view
 
-  alias Freecon.Experiments
+  alias Freecon.Rooms
+  alias Freecon.Participants
 
   @impl true
   def mount(_params, _session, socket) do
@@ -16,11 +17,11 @@ defmodule FreeconWeb.PageLive do
   end
 
   def handle_event("join", %{"name" => name, "code" => room_code}, socket) do
-    with room when not is_nil(room) <- Experiments.find_room_by_code(room_code) do
+    with room when not is_nil(room) <- Rooms.find_by_code(room_code) do
       socket = put_flash(socket, :info, "Joining #{room_code} as #{name}")
       participant_uuid = Ecto.UUID.generate()
 
-      Experiments.join_room(%{name: name, room_id: room.id, identifier: participant_uuid})
+      Participants.create_participant(%{name: name, room_id: room.id, identifier: participant_uuid})
 
       socket = push_redirect(
         socket,

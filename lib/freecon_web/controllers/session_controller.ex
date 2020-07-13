@@ -1,6 +1,6 @@
 defmodule FreeconWeb.SessionController do
   use FreeconWeb, :controller
-  alias Freecon.Accounts
+  alias Freecon.Professors
 
   def new(conn, _) do
     conn
@@ -15,7 +15,7 @@ defmodule FreeconWeb.SessionController do
   end
 
   def create(conn, %{"email" => email, "password" => password}) do
-    with professor <- Accounts.get_professor_by_email(email),
+    with professor <- Professors.get_professor_by_email(email),
          {:ok, login_professor} <- login(professor, password)
     do
       conn

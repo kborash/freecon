@@ -1,8 +1,6 @@
 defmodule FreeconWeb.WaitingLive do
   use FreeconWeb, :live_view
 
-  alias Freecon.Experiments
-
   def handle_params(%{"code" => room_code, "participant" => participant_id} = _params, _uri, socket) do
     Phoenix.PubSub.subscribe(Freecon.PubSub, room_code)
     socket = assign(

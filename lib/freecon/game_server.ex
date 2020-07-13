@@ -1,4 +1,4 @@
-defmodule Freecon.Game do
+defmodule Freecon.GameServer do
   use GenServer, restart: :transient
 
   defstruct room_name: nil,
@@ -12,17 +12,17 @@ defmodule Freecon.Game do
             participants: nil,
             round_ends: nil
 
-  alias Freecon.Game
-  alias Freecon.Experiments
+  alias Freecon.GameServer
+  alias Freecon.Rooms
 
   def start_link(options) do
-    game = hd(Experiments.games_for_room(options[:room].id))
+    game = hd(Rooms.games_for_room(options[:room].id))
 
     participants = initialize_participants(game)
 
     GenServer.start_link(
       __MODULE__,
-      %Game{
+      %GameServer{
         parameters: game.parameters,
         room_name: options[:room].code,
         participants: participants
@@ -33,12 +33,12 @@ defmodule Freecon.Game do
 
   @impl true
   def init(game) do
-    Process.send_after(self(), :end_round, 60_000)
+    Process.send_after(self(), :end_round, 600_000)
 
     game =
       struct(
         game,
-        round_ends: Timex.shift(Timex.now(), seconds: 60)
+        round_ends: Timex.shift(Timex.now(), seconds: 600)
       )
 
     {:ok, game}
@@ -50,13 +50,15 @@ defmodule Freecon.Game do
   end
 
   @impl true
-  def handle_cast({:ask, ask, quantity}, game) do
-    {:noreply, Game.process_ask(game, ask, quantity)}
+  def handle_cast({:ask, ask, quantity, participant}, game) do
+    # TODO: Save order into database
+    {:noreply, Game.process_ask(game, ask, quantity, participant)}
   end
 
   @impl true
-  def handle_cast({:bid, bid, quantity}, game) do
-    {:noreply, Game.process_bid(game, bid, quantity)}
+  def handle_cast({:bid, bid, quantity, participant}, game) do
+    # TODO: Save order into database
+    {:noreply, Game.process_bid(game, bid, quantity, participant)}
   end
 
   @impl true
@@ -68,10 +70,10 @@ defmodule Freecon.Game do
       game =
         struct(
           game,
-          round_ends: Timex.shift(Timex.now(), seconds: 60)
+          round_ends: Timex.shift(Timex.now(), seconds: 600)
         )
 
-      Process.send_after(self(), :end_round, 60_000)
+      Process.send_after(self(), :end_round, 600_000)
       {:noreply, game}
     else
       IO.inspect("Game completed!")
@@ -80,7 +82,7 @@ defmodule Freecon.Game do
   end
 
   def initialize_participants(game) do
-    Experiments.participants_in_room(game.room_id)
+    Rooms.participants_in_room(game.room_id)
     |> Enum.map(fn participant ->
       %{
         identifier: participant.identifier,
@@ -200,6 +202,10 @@ defmodule Freecon.Game do
       _ ->
         struct(game, market_bid: hd(game.bids)[:price])
     end
+  end
+
+  def create_round(game) do
+
   end
 
   def advance_round(game) do

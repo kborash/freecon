@@ -1,20 +1,21 @@
 defmodule FreeconWeb.ProfessorController do
   use FreeconWeb, :controller
-  alias Freecon.Accounts
+  alias Freecon.Professors
+  alias Freecon.Professors.Professor
 
   def new(conn, _) do
-    professor = Accounts.new_professor()
+    professor = Professors.change_professor(%Professor{})
 
     conn
     |> render("new.html", professor: professor)
   end
 
   def create(conn, %{"professor" => professor_params}) do
-    with {:ok, professor} <- Accounts.create_professor(professor_params) do
+    with {:ok, professor} <- Professors.create_professor(professor_params) do
       conn
       |> put_flash(:info, "Account created!")
       |> put_session(:professor, %{ id: professor.id, email: professor.email})
-      |> redirect(to: "/")
+      |> redirect(to: Routes.live_path(conn, FreeconWeb.ProfessorDashboard))
     else
       {:error, professor} ->
         conn

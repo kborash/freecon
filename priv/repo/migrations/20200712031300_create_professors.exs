@@ -1,16 +1,15 @@
-defmodule Freecon.Repo.Migrations.CreateProfessorTable do
+defmodule Freecon.Repo.Migrations.CreateProfessors do
   use Ecto.Migration
 
   def change do
     create table(:professors) do
       add :name, :string
       add :email, :string
-      add :active, :boolean, default: false
       add :encrypted_password, :string
+      add :active, :boolean, default: false, null: false
 
       timestamps()
     end
 
-    create unique_index(:professors, [:email])
   end
 end

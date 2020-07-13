@@ -1,11 +1,12 @@
 defmodule FreeconWeb.RoomLive do
   use FreeconWeb, :live_view
 
-  alias Freecon.Experiments
-  alias Freecon.Game
+  alias Freecon.Games
+  alias Freecon.Rooms
+  alias Freecon.GameServer
 
   def mount(%{"id" => room_id}, session, socket) do
-    room = Experiments.get_room_for_professor(room_id, session["professor"][:id])
+    room = Rooms.get_room_for_professor(room_id, session["professor"][:id])
 
     if room == [] do
       socket = put_flash(socket, :error, "Room not found.")
@@ -51,7 +52,7 @@ defmodule FreeconWeb.RoomLive do
   end
 
   def handle_event("add-game", _, socket) do
-    {:ok, game} = Experiments.create_game(%{
+    {:ok, game} = Games.create_game(%{
       name: "Assets Trading",
       parameters: %{
         rounds: 10,
@@ -67,12 +68,12 @@ defmodule FreeconWeb.RoomLive do
   end
 
   def handle_event("launch-room", _, socket) do
-    game = hd(Experiments.games_for_room(socket.assigns.room.id))
+    game = hd(Games.games_for_room(socket.assigns.room.id))
 
-    Experiments.start_game(game.id)
+    Games.start_game(game.id)
 
     {:ok, _pid} =
-      DynamicSupervisor.start_child(Freecon.GameSupervisor, {Game, name: via_tuple(socket.assigns.room.code), room: socket.assigns.room})
+      DynamicSupervisor.start_child(Freecon.GameSupervisor, {GameServer, name: via_tuple(socket.assigns.room.code), room: socket.assigns.room})
 
     Phoenix.PubSub.broadcast(Freecon.PubSub, socket.assigns.room.code, :start)
     {:noreply, push_redirect(socket, to: Routes.live_path(socket, FreeconWeb.RoomMonitor, socket.assigns.room.id))}
@@ -80,7 +81,7 @@ defmodule FreeconWeb.RoomLive do
 
   defp assign_games(socket) do
     socket = assign(socket,
-      games: Experiments.games_for_room(socket.assigns.room.id),
+      games: Games.games_for_room(socket.assigns.room.id),
     )
   end
 
