@@ -19,7 +19,7 @@
   <hr class="mt-5 mb-5" />
   <div class="text-center">
   <%= if @mode == "bid" do %>
-  <form phx-submit="bid">
+  <form phx-submit="bid" phx-change="update-bid">
   <div>
     Bid: <input type="number" required min="1" name="bid" value="<%= @bid %>"><br />
     Quantity: <input type="number" required min="1" name="quantity" value="<%= @quantity %>"><br />
@@ -29,7 +29,7 @@
   <% end %>
 
   <%= if @mode == "ask" do %>
-  <form phx-submit="ask">
+  <form phx-submit="ask" phx-change="update-ask">
   <div>
     Ask: <input type="number" required min="1" name="ask" value="<%= @ask %>"><br />
     Quantity: <input type="number" required min="1" name="quantity" value="<%= @quantity %>"><br />

@@ -28,7 +28,7 @@ defmodule FreeconWeb.ParticipantLive do
         socket
       ) do
 
-    participant = Participants.get_participant_by_identifier(participant_uuid)
+    participant = Participants.get_participant_by_identifier!(participant_uuid)
     Phoenix.PubSub.subscribe(Freecon.PubSub, room_code)
     socket = assign(socket, participant: participant)
     socket = assign_game(socket, room_code)
@@ -47,12 +47,32 @@ defmodule FreeconWeb.ParticipantLive do
   end
 
   def handle_event("bid", %{"bid" => bid, "quantity" => quantity}, socket) do
-    socket = check_bid(socket, bid, quantity)
+    socket = check_bid(socket, String.to_integer(bid), String.to_integer(quantity))
+    {:noreply, socket}
+  end
+
+  def handle_event("update-bid", %{"bid" => bid, "quantity" => quantity}, socket) do
+    socket =
+      assign(
+        socket,
+        bid: bid,
+        quantity: quantity
+      )
     {:noreply, socket}
   end
 
   def handle_event("ask", %{"ask" => ask, "quantity" => quantity}, socket) do
-    socket = check_ask(socket, ask, quantity)
+    socket = check_ask(socket, String.to_integer(ask), String.to_integer(quantity))
+    {:noreply, socket}
+  end
+
+  def handle_event("update-ask", %{"ask" => ask, "quantity" => quantity}, socket) do
+    socket =
+      assign(
+        socket,
+        ask: ask,
+        quantity: quantity
+      )
     {:noreply, socket}
   end
 
@@ -72,7 +92,9 @@ defmodule FreeconWeb.ParticipantLive do
     if funds_available?(socket, bid, quantity) do
       :ok = GenServer.cast(via_tuple(name), {:bid, bid, quantity, participant})
       :ok = Phoenix.PubSub.broadcast(Freecon.PubSub, name, :update)
-      assign_game(socket)
+      socket
+      |> clear_order_details
+      |> assign_game
     else
       socket
       |> put_flash(:error, "You don't have enough enough cash.")
@@ -85,7 +107,9 @@ defmodule FreeconWeb.ParticipantLive do
     if shares_available?(socket, quantity) do
       :ok = GenServer.cast(via_tuple(name), {:ask, ask, quantity, participant})
       :ok = Phoenix.PubSub.broadcast(Freecon.PubSub, name, :update)
-      assign_game(socket)
+      socket
+      |> clear_order_details
+      |> assign_game
     else
       socket
       |> put_flash(:error, "You don't have enough shares.")
@@ -93,15 +117,19 @@ defmodule FreeconWeb.ParticipantLive do
   end
 
   defp funds_available?(socket, price, quantity) do
-    price * quantity < socket.assigns.resources.cash
+    price * quantity <= socket.assigns.resources.cash
   end
 
   defp shares_available?(socket, quantity) do
-    quantity > socket.assigns.resources.shares
+    quantity <= socket.assigns.resources.shares
   end
 
   defp via_tuple(name) do
     {:via, Registry, {Freecon.GameRegistry, name}}
+  end
+
+  defp clear_order_details(socket) do
+    assign(socket, bid: nil, ask: nil, quantity: nil)
   end
 
   defp assign_game(socket, name) do

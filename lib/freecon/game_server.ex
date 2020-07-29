@@ -52,13 +52,13 @@ defmodule Freecon.GameServer do
   @impl true
   def handle_cast({:ask, ask, quantity, participant}, game) do
     # TODO: Save order into database
-    {:noreply, Game.process_ask(game, ask, quantity, participant)}
+    {:noreply, GameServer.process_ask(game, ask, quantity, participant)}
   end
 
   @impl true
   def handle_cast({:bid, bid, quantity, participant}, game) do
     # TODO: Save order into database
-    {:noreply, Game.process_bid(game, bid, quantity, participant)}
+    {:noreply, GameServer.process_bid(game, bid, quantity, participant)}
   end
 
   @impl true
@@ -92,12 +92,9 @@ defmodule Freecon.GameServer do
     end)
   end
 
-  def process_ask(game, ask, quantity) when ask == "", do: game
+  def process_ask(game, ask, quantity, participant) when ask == "", do: game
 
-  def process_ask(game, ask, quantity) do
-    ask = String.to_integer(ask)
-    quantity = String.to_integer(quantity)
-
+  def process_ask(game, ask, quantity, participant) do
     asks =
       [[price: ask, quantity: quantity, posted: Time.utc_now()] | game.asks]
       |> Enum.sort(&(&1[:price] < &2[:price]))
@@ -108,12 +105,9 @@ defmodule Freecon.GameServer do
     |> set_market_rates
   end
 
-  def process_bid(game, bid, quantity) when bid == "", do: game
+  def process_bid(game, bid, quantity, participant) when bid == "", do: game
 
-  def process_bid(game, bid, quantity) do
-    bid = String.to_integer(bid)
-    quantity = String.to_integer(quantity)
-
+  def process_bid(game, bid, quantity, participant) do
     bids =
       [[price: bid, quantity: quantity, posted: Time.utc_now()] | game.bids]
       |> Enum.sort(&(&1[:price] > &2[:price]))
