@@ -2,7 +2,9 @@ defmodule Freecon.GameServer do
   use GenServer, restart: :transient
 
   defstruct room_name: nil,
-            round: 1,
+            round: 0,
+            round_id: nil,
+            game_id: nil,
             parameters: nil,
             market_bid: nil,
             market_ask: nil,
@@ -14,6 +16,7 @@ defmodule Freecon.GameServer do
 
   alias Freecon.GameServer
   alias Freecon.Rooms
+  alias Freecon.Rounds
 
   def start_link(options) do
     game = hd(Rooms.games_for_room(options[:room].id))
@@ -23,6 +26,7 @@ defmodule Freecon.GameServer do
     GenServer.start_link(
       __MODULE__,
       %GameServer{
+        game_id: game.id,
         parameters: game.parameters,
         room_name: options[:room].code,
         participants: participants
@@ -33,12 +37,14 @@ defmodule Freecon.GameServer do
 
   @impl true
   def init(game) do
-    Process.send_after(self(), :end_round, 600_000)
+    Process.send_after(self(), :end_round, 60_000)
+
+    game = advance_round(game)
 
     game =
       struct(
         game,
-        round_ends: Timex.shift(Timex.now(), seconds: 600)
+        round_ends: Timex.shift(Timex.now(), seconds: 60)
       )
 
     {:ok, game}
@@ -52,6 +58,7 @@ defmodule Freecon.GameServer do
   @impl true
   def handle_cast({:ask, ask, quantity, participant}, game) do
     # TODO: Save order into database
+
     {:noreply, GameServer.process_ask(game, ask, quantity, participant)}
   end
 
@@ -70,10 +77,10 @@ defmodule Freecon.GameServer do
       game =
         struct(
           game,
-          round_ends: Timex.shift(Timex.now(), seconds: 600)
+          round_ends: Timex.shift(Timex.now(), seconds: 60)
         )
 
-      Process.send_after(self(), :end_round, 600_000)
+      Process.send_after(self(), :end_round, 60_000)
       {:noreply, game}
     else
       IO.inspect("Game completed!")
@@ -199,7 +206,14 @@ defmodule Freecon.GameServer do
   end
 
   def create_round(game) do
+    {:ok, round} =
+      Rounds.create_round(%{
+        game_id: game.game_id,
+        round_number: game.round
+      })
 
+    game
+    |> struct(round_id: round.id)
   end
 
   def advance_round(game) do
@@ -213,6 +227,10 @@ defmodule Freecon.GameServer do
         market_bid: nil,
         market_ask: nil
       )
+
+    create_round(game)
+
+    game
   end
 
   def complete_game(game) do

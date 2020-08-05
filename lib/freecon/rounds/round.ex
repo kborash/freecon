@@ -15,7 +15,7 @@ defmodule Freecon.Rounds.Round do
   @doc false
   def changeset(round, attrs) do
     round
-    |> cast(attrs, [:round_number, :completed])
+    |> cast(attrs, [:round_number, :game_id, :completed])
     |> validate_required([:round_number, :completed])
   end
 end
