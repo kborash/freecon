@@ -17,6 +17,7 @@ defmodule Freecon.GameServer do
   alias Freecon.GameServer
   alias Freecon.Rooms
   alias Freecon.Rounds
+  alias Freecon.Orders
 
   def start_link(options) do
     game = hd(Rooms.games_for_room(options[:room].id))
@@ -57,14 +58,28 @@ defmodule Freecon.GameServer do
 
   @impl true
   def handle_cast({:ask, ask, quantity, participant}, game) do
-    # TODO: Save order into database
+    IO.inspect(participant)
+    {:ok, _} = Orders.create_order(%{
+      price: ask,
+      quantity: quantity,
+      type: "ask",
+      participant_id: participant.id,
+      round_id: game.round_id
+    })
 
     {:noreply, GameServer.process_ask(game, ask, quantity, participant)}
   end
 
   @impl true
   def handle_cast({:bid, bid, quantity, participant}, game) do
-    # TODO: Save order into database
+    {:ok, _} = Orders.create_order(%{
+      price: bid,
+      quantity: quantity,
+      type: "bid",
+      participant_id: participant.id,
+      round_id: game.round_id
+    })
+
     {:noreply, GameServer.process_bid(game, bid, quantity, participant)}
   end
 
@@ -229,8 +244,6 @@ defmodule Freecon.GameServer do
       )
 
     create_round(game)
-
-    game
   end
 
   def complete_game(game) do
