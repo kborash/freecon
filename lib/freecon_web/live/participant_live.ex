@@ -76,6 +76,11 @@ defmodule FreeconWeb.ParticipantLive do
     {:noreply, socket}
   end
 
+  def handle_event("retract-order", _, socket) do
+    :ok = GenServer.cast(via_tuple(socket.assigns.name), {:retract_order, socket.assigns.participant})
+    {:noreply, assign_game(socket)}
+  end
+
   def handle_info(:update, socket) do
     {:noreply, assign_game(socket)}
   end
@@ -158,5 +163,10 @@ defmodule FreeconWeb.ParticipantLive do
     |> Timex.Interval.duration(:seconds)
     |> Timex.Duration.from_seconds()
     |> Timex.format_duration(:humanized)
+  end
+
+  defp active_order?(game, participant) do
+    Enum.any?(game.asks, fn(x) -> x[:participant].id == participant.id end) or
+      Enum.any?(game.bids, fn(x) -> x[:participant].id == participant.id end)
   end
 end

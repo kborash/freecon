@@ -59,7 +59,6 @@ defmodule Freecon.GameServer do
 
   @impl true
   def handle_cast({:ask, ask, quantity, participant}, game) do
-    IO.inspect(participant)
     {:ok, _} = Orders.create_order(%{
       price: ask,
       quantity: quantity,
@@ -82,6 +81,16 @@ defmodule Freecon.GameServer do
     })
 
     {:noreply, GameServer.process_bid(game, bid, quantity, participant)}
+  end
+
+  @impl true
+  def handle_cast({:retract_order, participant}, game) do
+    # TODO: Restore resources for retracting order
+    asks = Enum.filter(game.asks, fn(x) -> x[:participant].id != participant.id end)
+    bids = Enum.filter(game.bids, fn(x) -> x[:participant].id != participant.id end)
+    game = struct(game, asks: asks, bids: bids)
+    game = set_market_rates(game)
+    {:noreply, game}
   end
 
   @impl true

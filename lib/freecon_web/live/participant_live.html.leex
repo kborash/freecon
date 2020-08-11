@@ -18,32 +18,39 @@
   </div>
   <hr class="mt-5 mb-5" />
   <div class="text-center">
-  <%= if @mode == "bid" do %>
-  <form phx-submit="bid" phx-change="update-bid">
-  <div class="pb-2">
+  <%= if active_order?(@game, @participant) do %>
     <div class="pb-2">
-      Bid: <input class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="number" required min="1" name="bid" value="<%= @bid %>"><br />
+      <p class="font-bold text-xl">You have an active order!</p>
+      <button class="bg-gray-500 text-white font-semibold px-4 py-2 rounded" phx-click="retract-order">Clear order</button>
     </div>
-    <div class="py-2">
-      Quantity: <input class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="number" required min="1" name="quantity" value="<%= @quantity %>"><br />
+  <% else %>
+    <%= if @mode == "bid" do %>
+    <form phx-submit="bid" phx-change="update-bid">
+    <div class="pb-2">
+      <div class="pb-2">
+        Bid: <input class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="number" required min="1" name="bid" value="<%= @bid %>"><br />
+      </div>
+      <div class="py-2">
+        Quantity: <input class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="number" required min="1" name="quantity" value="<%= @quantity %>"><br />
+      </div>
+      <input class="bg-gray-500 text-white font-semibold px-4 py-2 rounded" type="submit" value="Submit">
     </div>
-    <input class="bg-gray-500 text-white font-semibold px-4 py-2 rounded" type="submit" value="Submit">
-  </div>
-  </form>
-  <% end %>
+    </form>
+    <% end %>
 
-  <%= if @mode == "ask" do %>
-  <form phx-submit="ask" phx-change="update-ask">
-  <div class="pb-2">
+    <%= if @mode == "ask" do %>
+    <form phx-submit="ask" phx-change="update-ask">
     <div class="pb-2">
-      Ask: <input class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="number" required min="1" name="ask" value="<%= @ask %>"><br />
+      <div class="pb-2">
+        Ask: <input class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="number" required min="1" name="ask" value="<%= @ask %>"><br />
+      </div>
+      <div class="py-2">
+        Quantity: <input class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="number" required min="1" name="quantity" value="<%= @quantity %>"><br />
+      </div>
+      <input class="bg-gray-500 text-white font-semibold px-4 py-2 rounded" type="submit" value="Submit">
     </div>
-    <div class="py-2">
-      Quantity: <input class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="number" required min="1" name="quantity" value="<%= @quantity %>"><br />
-    </div>
-    <input class="bg-gray-500 text-white font-semibold px-4 py-2 rounded" type="submit" value="Submit">
-  </div>
-  </form>
+    </form>
+    <% end %>
   <% end %>
   </div>
   <hr />
