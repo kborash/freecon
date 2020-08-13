@@ -59,26 +59,28 @@ defmodule Freecon.GameServer do
 
   @impl true
   def handle_cast({:ask, ask, quantity, participant}, game) do
-    {:ok, _} = Orders.create_order(%{
-      price: ask,
-      quantity: quantity,
-      type: "ask",
-      participant_id: participant.id,
-      round_id: game.round_id
-    })
+    {:ok, _} =
+      Orders.create_order(%{
+        price: ask,
+        quantity: quantity,
+        type: "ask",
+        participant_id: participant.id,
+        round_id: game.round_id
+      })
 
     {:noreply, GameServer.process_ask(game, ask, quantity, participant)}
   end
 
   @impl true
   def handle_cast({:bid, bid, quantity, participant}, game) do
-    {:ok, _} = Orders.create_order(%{
-      price: bid,
-      quantity: quantity,
-      type: "bid",
-      participant_id: participant.id,
-      round_id: game.round_id
-    })
+    {:ok, _} =
+      Orders.create_order(%{
+        price: bid,
+        quantity: quantity,
+        type: "bid",
+        participant_id: participant.id,
+        round_id: game.round_id
+      })
 
     {:noreply, GameServer.process_bid(game, bid, quantity, participant)}
   end
@@ -86,8 +88,8 @@ defmodule Freecon.GameServer do
   @impl true
   def handle_cast({:retract_order, participant}, game) do
     # TODO: Restore resources for retracting order
-    asks = Enum.filter(game.asks, fn(x) -> x[:participant].id != participant.id end)
-    bids = Enum.filter(game.bids, fn(x) -> x[:participant].id != participant.id end)
+    asks = Enum.filter(game.asks, fn x -> x[:participant].id != participant.id end)
+    bids = Enum.filter(game.bids, fn x -> x[:participant].id != participant.id end)
     game = struct(game, asks: asks, bids: bids)
     game = set_market_rates(game)
     {:noreply, game}
@@ -116,19 +118,26 @@ defmodule Freecon.GameServer do
   def initialize_participants(game) do
     Rooms.participants_in_room(game.room_id)
     |> Enum.map(fn participant ->
-      %{
-        identifier: participant.identifier,
-        cash: game.parameters["endowment"],
-        shares: game.parameters["shares"]
-      }
+      {participant.id,
+       %{
+         participant: participant.id,
+         cash: game.parameters["endowment"],
+         shares: game.parameters["shares"]
+       }}
     end)
+    |> Map.new()
   end
 
   def process_ask(game, ask, quantity, participant) when ask == "", do: game
 
   def process_ask(game, ask, quantity, participant) do
+    # TODO: Confirm available shares
+
     asks =
-      [[price: ask, quantity: quantity, posted: Time.utc_now(), participant: participant] | game.asks]
+      [
+        [price: ask, quantity: quantity, posted: Time.utc_now(), participant: participant]
+        | game.asks
+      ]
       |> Enum.sort(&(&1[:price] < &2[:price]))
 
     game
@@ -140,8 +149,13 @@ defmodule Freecon.GameServer do
   def process_bid(game, bid, quantity, participant) when bid == "", do: game
 
   def process_bid(game, bid, quantity, participant) do
+    # TODO: Confirm available cash
+
     bids =
-      [[price: bid, quantity: quantity, posted: Time.utc_now(), participant: participant] | game.bids]
+      [
+        [price: bid, quantity: quantity, posted: Time.utc_now(), participant: participant]
+        | game.bids
+      ]
       |> Enum.sort(&(&1[:price] > &2[:price]))
 
     game
@@ -163,13 +177,27 @@ defmodule Freecon.GameServer do
             # Some of the high bid will need to be returned to the order book
             remainder_quantity = high_bid[:quantity] - low_ask[:quantity]
 
-            save_trade(game.round_id, low_ask[:participant], high_bid[:participant], closing_price, low_ask[:quantity])
+            save_trade(
+              game.round_id,
+              low_ask[:participant],
+              high_bid[:participant],
+              closing_price,
+              low_ask[:quantity]
+            )
 
             process_transactions(
               struct(game, %{
                 transactions: game.transactions ++ [low_ask],
                 asks: other_asks,
-                bids: [[price: high_bid[:price], quantity: remainder_quantity, posted: high_bid[:posted], participant: high_bid[:participant]] | other_bids]
+                bids: [
+                  [
+                    price: high_bid[:price],
+                    quantity: remainder_quantity,
+                    posted: high_bid[:posted],
+                    participant: high_bid[:participant]
+                  ]
+                  | other_bids
+                ]
               })
             )
 
@@ -177,19 +205,39 @@ defmodule Freecon.GameServer do
             # Some of the low ask will need to be returned to the order book
             remainder_quantity = low_ask[:quantity] - high_bid[:quantity]
 
-            save_trade(game.round_id, low_ask[:participant], high_bid[:participant], closing_price, high_bid[:quantity])
+            save_trade(
+              game.round_id,
+              low_ask[:participant],
+              high_bid[:participant],
+              closing_price,
+              high_bid[:quantity]
+            )
 
             process_transactions(
               struct(game, %{
                 transactions: game.transactions ++ [high_bid],
-                asks: [[price: low_ask[:price], quantity: remainder_quantity, posted: low_ask[:posted], participant: low_ask[:participant]] | other_asks],
+                asks: [
+                  [
+                    price: low_ask[:price],
+                    quantity: remainder_quantity,
+                    posted: low_ask[:posted],
+                    participant: low_ask[:participant]
+                  ]
+                  | other_asks
+                ],
                 bids: other_bids
               })
             )
 
           true ->
             # In this case, you can use either the low_ask or high_bid quantity
-            save_trade(game.round_id, low_ask[:participant], high_bid[:participant], closing_price, low_ask[:quantity])
+            save_trade(
+              game.round_id,
+              low_ask[:participant],
+              high_bid[:participant],
+              closing_price,
+              low_ask[:quantity]
+            )
 
             struct(game, %{
               transactions: game.transactions ++ [high_bid],
@@ -244,6 +292,10 @@ defmodule Freecon.GameServer do
     |> struct(round_id: round.id)
   end
 
+  def complete_round(game) do
+    game
+  end
+
   def advance_round(game) do
     game =
       game
@@ -263,19 +315,21 @@ defmodule Freecon.GameServer do
   end
 
   def save_trade(round_id, buyer, seller, price, quantity) do
-    {:ok, _} = Trades.create_trade(%{
-      round_id: round_id,
-      buyer_id: buyer.id,
-      seller_id: seller.id,
-      price: price,
-      quantity: quantity
-    })
+    {:ok, _} =
+      Trades.create_trade(%{
+        round_id: round_id,
+        buyer_id: buyer.id,
+        seller_id: seller.id,
+        price: price,
+        quantity: quantity
+      })
   end
 
   defp calculate_closing_price(bid, ask) do
     case Time.compare(bid[:posted], ask[:posted]) do
       :lt ->
         bid[:price]
+
       _ ->
         ask[:price]
     end

@@ -146,8 +146,7 @@ defmodule FreeconWeb.ParticipantLive do
   defp assign_game(%{assigns: %{name: name}} = socket) do
     game = GenServer.call(via_tuple(name), :game)
 
-    resources =
-      Enum.find(game.participants, fn p -> p.identifier == socket.assigns.participant.identifier end)
+    resources = game.participants[socket.assigns.participant.id]
 
     assign(socket,
       game: game,
