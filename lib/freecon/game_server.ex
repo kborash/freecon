@@ -39,14 +39,14 @@ defmodule Freecon.GameServer do
 
   @impl true
   def init(game) do
-    Process.send_after(self(), :end_round, 60000_000)
+    Process.send_after(self(), :end_round, 60_000)
 
     game = advance_round(game)
 
     game =
       struct(
         game,
-        round_ends: Timex.shift(Timex.now(), seconds: 60000)
+        round_ends: Timex.shift(Timex.now(), seconds: 60)
       )
 
     {:ok, game}
@@ -98,16 +98,20 @@ defmodule Freecon.GameServer do
   @impl true
   def handle_info(:end_round, game) do
     if game.round < game.parameters["rounds"] do
-      game = advance_round(game)
+      game =
+        game
+        |> complete_round
+        |> advance_round
+
       :ok = Phoenix.PubSub.broadcast(Freecon.PubSub, game.room_name, :update)
 
       game =
         struct(
           game,
-          round_ends: Timex.shift(Timex.now(), seconds: 60000)
+          round_ends: Timex.shift(Timex.now(), seconds: 60)
         )
 
-      Process.send_after(self(), :end_round, 60000_000)
+      Process.send_after(self(), :end_round, 60_000)
       {:noreply, game}
     else
       IO.inspect("Game completed!")
@@ -327,7 +331,24 @@ defmodule Freecon.GameServer do
   end
 
   def complete_round(game) do
-    game
+    participants =
+      Enum.map(game.participants, fn participant ->
+        {id, values} = participant
+
+        {id,
+         %{
+           values
+           | cash:
+               round(values.cash * (game.parameters["interest_rate"] + 1) +
+                 values.shares * Enum.at(game.parameters["dividends"], game.round - 1))
+         }}
+      end)
+      |> Map.new()
+
+    struct(
+      game,
+      participants: participants
+    )
   end
 
   def advance_round(game) do
@@ -365,11 +386,9 @@ defmodule Freecon.GameServer do
     transaction_value = price * quantity
     # Reduce buyer funds, add shares
     buyer = %{buyer | cash: buyer.cash - transaction_value, shares: buyer.shares + quantity}
-    IO.inspect(buyer)
 
     # Reduce sellers shares, add funds
     seller = %{seller | cash: seller.cash + transaction_value, shares: seller.shares - quantity}
-    IO.inspect(seller)
 
     participants
     |> Map.put(buyer.participant, buyer)
@@ -392,20 +411,5 @@ defmodule Freecon.GameServer do
 
   defp available_funds(game, participant, price, quantity) do
     game.participants[participant.id]["funds"] >= price * quantity
-  end
-
-  defp add_shares(game, participant, shares) do
-    game
-  end
-
-  defp remove_shares(game, participant, shares) do
-    game
-  end
-
-  defp add_funds(game, participant, funds) do
-    game
-  end
-
-  defp remove_funds(game, participant, funds) do
   end
 end
