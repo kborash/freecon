@@ -24,6 +24,7 @@ defmodule FreeconWeb.Router do
     live "/", PageLive, :index
     live "/waiting", WaitingLive
     live "/participant", ParticipantLive
+    live "/participant/review", ParticipantReviewLive
 
     resources "/professors", ProfessorController, only: [:new, :create]
     resources "/sessions", SessionController, only: [:create]

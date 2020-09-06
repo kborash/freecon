@@ -12,13 +12,15 @@ defmodule Freecon.GameServer do
             asks: [],
             transactions: [],
             participants: nil,
-            round_ends: nil
+            round_ends: nil,
+            complete: false
 
   alias Freecon.GameServer
   alias Freecon.Rooms
   alias Freecon.Rounds
   alias Freecon.Orders
   alias Freecon.Trades
+  alias Freecon.RoundResults
 
   def start_link(options) do
     game = hd(Rooms.games_for_room(options[:room].id))
@@ -115,7 +117,7 @@ defmodule Freecon.GameServer do
       {:noreply, game}
     else
       IO.inspect("Game completed!")
-      {:noreply, game}
+      {:noreply, complete_game(game)}
     end
   end
 
@@ -335,15 +337,30 @@ defmodule Freecon.GameServer do
       Enum.map(game.participants, fn participant ->
         {id, values} = participant
 
+        {:ok, _} =
+          RoundResults.create_round_result(%{
+            participant_id: id,
+            round_id: game.round_id,
+            cash: values.cash,
+            interest: round(values.cash * (game.parameters["interest_rate"] + 1) - values.cash),
+            shares: values.shares,
+            dividends:
+              round(values.shares * Enum.at(game.parameters["dividends"], game.round - 1))
+          })
+
         {id,
          %{
            values
            | cash:
-               round(values.cash * (game.parameters["interest_rate"] + 1) +
-                 values.shares * Enum.at(game.parameters["dividends"], game.round - 1))
+               round(
+                 values.cash * (game.parameters["interest_rate"] + 1) +
+                   values.shares * Enum.at(game.parameters["dividends"], game.round - 1)
+               )
          }}
       end)
       |> Map.new()
+
+    :ok = Phoenix.PubSub.broadcast(Freecon.PubSub, game.room_name, :round_completed)
 
     struct(
       game,
@@ -367,6 +384,10 @@ defmodule Freecon.GameServer do
   end
 
   def complete_game(game) do
+    Phoenix.PubSub.broadcast(Freecon.PubSub, game.room_name, :game_completed)
+
+    game
+    |> struct(complete: true)
   end
 
   defp save_trade(round_id, buyer, seller, price, quantity) do

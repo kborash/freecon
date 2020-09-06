@@ -83,4 +83,30 @@
       <% end %>
     </div>
   </div>
+  <div id="previous-round-results" class="flex justify-center">
+    <div class="rounded-lg border border-gray-400 p-4 w-10/12">
+      <table class="table-auto w-full text-center">
+        <thead>
+        <tr>
+          <th>Round</th>
+          <th>Cash</th>
+          <th>Shares</th>
+          <th>Interest Earned</th>
+          <th>Share Dividends</th>
+        </tr>
+        </thead>
+        <tbody>
+        <%= for round_result <- @round_history do %>
+        <tr>
+          <td class="border px-4 py-2"><%= round_result.round_number %></td>
+          <td class="border px-4 py-2"><%= round_result.cash %></td>
+          <td class="border px-4 py-2"><%= round_result.shares %></td>
+          <td class="border px-4 py-2"><%= round_result.interest %></td>
+          <td class="border px-4 py-2"><%= round_result.dividends %></td>
+        </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>

@@ -2,6 +2,7 @@ defmodule FreeconWeb.ParticipantLive do
   use FreeconWeb, :live_view
 
   alias Freecon.Participants
+  alias Freecon.RoundResults
 
   def mount(_params, _session, socket) do
     if connected?(socket) do
@@ -16,7 +17,9 @@ defmodule FreeconWeb.ParticipantLive do
         quantity: nil,
         mode: "bid",
         participant: nil,
-        resources: nil
+        resources: nil,
+        display_history: false,
+        round_history: []
       )
 
     {:ok, socket}
@@ -33,6 +36,7 @@ defmodule FreeconWeb.ParticipantLive do
     socket = assign(socket, participant: participant)
     socket = assign_game(socket, room_code)
     socket = assign(socket, time_remaining: time_remaining(socket.assigns.game.round_ends))
+    socket = assign_round_history(socket)
     {:noreply, socket}
   end
 
@@ -89,6 +93,22 @@ defmodule FreeconWeb.ParticipantLive do
     expiration_time = socket.assigns.game.round_ends
     socket = assign(socket, time_remaining: time_remaining(expiration_time))
     {:noreply, socket}
+  end
+
+  def handle_info(:round_completed, socket) do
+    {:noreply, assign_round_history(socket)}
+  end
+
+  def handle_info(:game_completed, socket) do
+    {:noreply, push_redirect(
+      socket,
+      to: FreeconWeb.Router.Helpers.live_path(
+        socket,
+        FreeconWeb.ParticipantReviewLive,
+        code: socket.assigns.room_code,
+        participant: socket.assigns.participant_uuid
+      )
+    )}
   end
 
   defp check_bid(socket, bid, quantity) when bid == "", do: socket
@@ -155,6 +175,14 @@ defmodule FreeconWeb.ParticipantLive do
       ask: nil,
       resources: resources
     )
+  end
+
+  defp assign_round_history(socket) do
+    assign(socket,
+      round_history: RoundResults.list_round_results(
+      socket.assigns.game.game_id,
+      socket.assigns.participant.id
+    ))
   end
 
   defp time_remaining(expiration_time) do
