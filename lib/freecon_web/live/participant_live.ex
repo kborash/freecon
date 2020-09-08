@@ -22,7 +22,7 @@ defmodule FreeconWeb.ParticipantLive do
         round_history: []
       )
 
-    {:ok, socket}
+    {:ok, socket, layout: {FreeconWeb.LayoutView, "participant.html"}}
   end
 
   def handle_params(

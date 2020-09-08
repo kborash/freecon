@@ -8,7 +8,7 @@ defmodule FreeconWeb.WaitingLive do
       room_code: room_code,
       participant_uuid: participant_id
     )
-    {:noreply, socket}
+    {:noreply, socket, layout: {FreeconWeb.LayoutView, "participant.html"}}
   end
 
   def render(assigns) do
