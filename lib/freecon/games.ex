@@ -109,10 +109,18 @@ defmodule Freecon.Games do
   end
 
   def games_for_room(room_id) do
-    query = from g in Game,
-                 where: g.room_id == ^room_id,
-                 select: g
+    query =
+      from g in Game,
+        where: g.room_id == ^room_id,
+        select: g
 
     Repo.all(query)
+  end
+
+  def expected_value(game_id) do
+    game = Repo.get(Game, game_id)
+
+    game.parameters["rounds"]..1
+    |> Enum.map(fn i -> Enum.sum(Enum.take(game.parameters["dividends"], -1 * i)) end)
   end
 end
