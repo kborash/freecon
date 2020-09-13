@@ -1,6 +1,10 @@
 defmodule FreeconWeb.WaitingLive do
   use FreeconWeb, :live_view
 
+  def mount(_params, _session, socket) do
+    {:ok, socket, layout: {FreeconWeb.LayoutView, "participant.html"}}
+  end
+
   def handle_params(%{"code" => room_code, "participant" => participant_id} = _params, _uri, socket) do
     Phoenix.PubSub.subscribe(Freecon.PubSub, room_code)
     socket = assign(
@@ -8,7 +12,7 @@ defmodule FreeconWeb.WaitingLive do
       room_code: room_code,
       participant_uuid: participant_id
     )
-    {:noreply, socket, layout: {FreeconWeb.LayoutView, "participant.html"}}
+    {:noreply, socket}
   end
 
   def render(assigns) do
