@@ -82,6 +82,7 @@ defmodule FreeconWeb.ParticipantLive do
 
   def handle_event("retract-order", _, socket) do
     :ok = GenServer.cast(via_tuple(socket.assigns.name), {:retract_order, socket.assigns.participant})
+    :ok = Phoenix.PubSub.broadcast(Freecon.PubSub, socket.assigns.name, :update)
     {:noreply, assign_game(socket)}
   end
 

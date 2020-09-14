@@ -1,15 +1,146 @@
-<h1 class="text-5xl text-bold">Admin interface for monitoring a room</h1>
+<div class="pl-2 pr-2">
+  <!-- TODO: Display code for joining -->
 
-<!-- TODO: Display code for joining -->
+  <!-- TODO: Display number of folks connected -->
 
-<!-- TODO: Display number of folks connected -->
+  <!-- TODO: Display "Start button" -->
 
-<!-- TODO: Display "Start button" -->
+  <!-- TODO: Display experiment monitor -->
+  <h1 class="text-5xl">Monitoring Room <%= @room.code %></h1>
+  <hr />
 
-<!-- TODO: Display experiment monitor -->
+  <h2 class="text-3xl text-bold">Round <%= @game.round %></h2>
 
-<!-- TODO: Display order book -->
+  <!-- TODO: Style order book -->
+  <h2 class="text-3xl text-bold">Order Book</h2>
+  <!--<div id="market-prices">
+    <div id="best-ask">
+      <span>Market Ask: <span><%= @game.market_ask %></span></span>
+    </div>
+    <div id="best-bid">
+      <span>Market Bid: <span><%= @game.market_bid %></span></span>
+    </div>
+  </div>-->
+  <div id="order-book" class="border w-1/2 text-center">
+    <div id="top-of-book" class="inline-block w-1/2 float-left">
+      <span class="border-b">Top of Book</span>
+      <div class="w-full">
+        <table style="border-collapse: collapse; border-spacing: 0;" class="w-full">
+          <tbody>
+            <tr>
+              <th></th>
+              <th class="text-center">Shares</th>
+              <th class="text-center">Price</th>
+            </tr>
+            <tr class="order-book-ask">
+              <th rowspan="5">ASKS</th>
+              <%= if Enum.count(@game.asks) >= 5 do %>
+              <td><%= Enum.at(@game.asks, 4)["quantity"] %></td>
+              <td><%= Enum.at(@game.asks, 4)["price"] %></td>
+              <% else %>
+              <td>--</td>
+              <td>--</td>
+              <% end %>
+            </tr>
+            <%= if Enum.count(@game.asks) < 4 do %>
+            <%= for i <- 0..(3-Enum.count(@game.asks)) do %>
+            <tr class="order-book-ask">
+              <td>--</td>
+              <td>--</td>
+            </tr>
+            <% end %>
+            <% end %>
 
-<!-- TODO: Display graph of transactions -->
+            <%= for ask <- Enum.reverse(Enum.take(@game.asks, 4)) do %>
+            <tr class="order-book-ask">
+              <td><%= ask[:quantity] %></td>
+              <td><%= ask[:price] %></td>
+            </tr>
+            <% end %>
 
-<!-- TODO: Display table of participant details (cash, shares) -->
+            <tr class="order-book-bid">
+              <th rowspan="5">BIDS</th>
+              <%= if Enum.count(@game.bids) >= 1 do %>
+              <td><%= hd(@game.bids)[:quantity] %></td>
+              <td><%= hd(@game.bids)[:price] %></td>
+              <% else %>
+              <td>--</td>
+              <td>--</td>
+              <% end %>
+            </tr>
+            <%= if @game.bids != [] do %>
+            <%= for bid <- (Enum.take(tl(@game.bids), 4)) do %>
+            <tr class="order-book-bid">
+              <td><%= bid[:quantity] %></td>
+              <td><%= bid[:price] %></td>
+            </tr>
+            <% end %>
+
+            <%= if Enum.count(@game.bids) < 5 do %>
+            <%= for i <- 0..(3-Enum.count(tl(@game.bids))) do %>
+            <tr class="order-book-bid">
+              <td>--</td>
+              <td>--</td>
+            </tr>
+            <% end %>
+            <% end %>
+
+            <% else %>
+            <%= for i <- 0..3 do %>
+            <tr class="order-book-bid">
+              <td>--</td>
+              <td>--</td>
+            </tr>
+            <% end %>
+            <% end %>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div id="recent-trades" class="inline-block w-1/2 float-left">
+      <span class="border-b">Last 10 Trades</span>
+      <div class="w-full">
+        <table class="w-full">
+          <tbody>
+            <tr>
+              <th>Price</th>
+              <th>Shares</th>
+            </tr>
+            <%= for transaction <- Enum.take(Enum.reverse(@game.transactions), 10) do %>
+            <tr>
+              <td><%= transaction[:price] %></td>
+              <td><%= transaction[:quantity] %></td>
+            </tr>
+            <% end %>
+            <%= if Enum.count(@game.transactions) < 10 do %>
+              <%= for i <- 0..(max(9 - Enum.count(@game.transactions), 0)) do %>
+              <tr>
+                <td>--</td>
+                <td>--</td>
+              </tr>
+              <% end %>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div id="asks">
+    </div>
+    <div id="bids">
+    </div>
+  </div>
+
+  <!-- Expected Values -->
+  <div class="clear-both">
+    <h1>Expected Values</h1>
+    <%= for round_value <- Freecon.Games.expected_value(@game.game_id) do %>
+    <p><%= round_value %></p>
+    <% end %>
+  </div>
+
+  <!-- TODO: Display graph of transactions -->
+
+  <!-- TODO: Display table of participant details (cash, shares) -->
+
+</div>
