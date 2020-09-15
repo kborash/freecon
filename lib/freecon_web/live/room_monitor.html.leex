@@ -34,24 +34,13 @@
             </tr>
             <tr class="order-book-ask">
               <th rowspan="5">ASKS</th>
-              <%= if Enum.count(@game.asks) >= 5 do %>
-              <td><%= Enum.at(@game.asks, 4)["quantity"] %></td>
-              <td><%= Enum.at(@game.asks, 4)["price"] %></td>
-              <% else %>
-              <td>--</td>
-              <td>--</td>
+              <%= with order <- hd(order_book_asks(@game)) do %>
+              <td><%= order[:quantity] %></td>
+              <td><%= order[:price] %></td>
               <% end %>
             </tr>
-            <%= if Enum.count(@game.asks) < 4 do %>
-            <%= for i <- 0..(3-Enum.count(@game.asks)) do %>
-            <tr class="order-book-ask">
-              <td>--</td>
-              <td>--</td>
-            </tr>
-            <% end %>
-            <% end %>
 
-            <%= for ask <- Enum.reverse(Enum.take(@game.asks, 4)) do %>
+            <%= for ask <- tl(order_book_asks(@game)) do %>
             <tr class="order-book-ask">
               <td><%= ask[:quantity] %></td>
               <td><%= ask[:price] %></td>
@@ -60,40 +49,18 @@
 
             <tr class="order-book-bid">
               <th rowspan="5">BIDS</th>
-              <%= if Enum.count(@game.bids) >= 1 do %>
-              <td><%= hd(@game.bids)[:quantity] %></td>
-              <td><%= hd(@game.bids)[:price] %></td>
-              <% else %>
-              <td>--</td>
-              <td>--</td>
+              <%= with order <- hd(order_book_bids(@game)) do %>
+              <td><%= order[:quantity] %></td>
+              <td><%= order[:price] %></td>
               <% end %>
             </tr>
-            <%= if @game.bids != [] do %>
-            <%= for bid <- (Enum.take(tl(@game.bids), 4)) do %>
+
+            <%= for bid <- tl(order_book_bids(@game)) do %>
             <tr class="order-book-bid">
               <td><%= bid[:quantity] %></td>
               <td><%= bid[:price] %></td>
             </tr>
             <% end %>
-
-            <%= if Enum.count(@game.bids) < 5 do %>
-            <%= for i <- 0..(3-Enum.count(tl(@game.bids))) do %>
-            <tr class="order-book-bid">
-              <td>--</td>
-              <td>--</td>
-            </tr>
-            <% end %>
-            <% end %>
-
-            <% else %>
-            <%= for i <- 0..3 do %>
-            <tr class="order-book-bid">
-              <td>--</td>
-              <td>--</td>
-            </tr>
-            <% end %>
-            <% end %>
-
           </tbody>
         </table>
       </div>
@@ -107,19 +74,11 @@
               <th>Price</th>
               <th>Shares</th>
             </tr>
-            <%= for transaction <- Enum.take(Enum.reverse(@game.transactions), 10) do %>
+            <%= for transaction <- recent_transactions(@game) do %>
             <tr>
               <td><%= transaction[:price] %></td>
               <td><%= transaction[:quantity] %></td>
             </tr>
-            <% end %>
-            <%= if Enum.count(@game.transactions) < 10 do %>
-              <%= for i <- 0..(max(9 - Enum.count(@game.transactions), 0)) do %>
-              <tr>
-                <td>--</td>
-                <td>--</td>
-              </tr>
-              <% end %>
             <% end %>
           </tbody>
         </table>

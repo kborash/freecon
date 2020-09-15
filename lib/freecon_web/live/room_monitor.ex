@@ -27,4 +27,16 @@ defmodule FreeconWeb.RoomMonitor do
   defp via_tuple(name) do
     {:via, Registry, {Freecon.GameRegistry, name}}
   end
+
+  defp order_book_asks(game) do
+    Enum.reverse(Enum.take(Enum.take(game.asks, 5) ++ List.duplicate([price: "--", quantity: "--"], 5), 5))
+  end
+
+  defp order_book_bids(game) do
+    Enum.take(Enum.take(game.bids, 5) ++ List.duplicate([price: "--", quantity: "--"], 5), 5)
+  end
+
+  def recent_transactions(game) do
+    Enum.take(Enum.reverse(Enum.take(game.transactions, 10)) ++ List.duplicate([price: "--", quantity: "--"], 10), 10)
+  end
 end
