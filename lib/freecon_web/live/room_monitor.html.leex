@@ -1,15 +1,10 @@
 <div class="pl-2 pr-2">
-  <!-- TODO: Display code for joining -->
-
-  <!-- TODO: Display number of folks connected -->
-
-  <!-- TODO: Display "Start button" -->
-
   <!-- TODO: Display experiment monitor -->
   <h1 class="text-5xl">Monitoring Room <%= @room.code %></h1>
   <hr />
 
   <h2 class="text-3xl text-bold">Round <%= @game.round %></h2>
+  <h3 class="text-2xl text-bold">Expected Share Value: <%= Enum.at(Freecon.Games.expected_value(@game.game_id), @game.round - 1) %></h3>
 
   <!-- TODO: Style order book -->
   <h2 class="text-3xl text-bold">Order Book</h2>
@@ -22,10 +17,10 @@
     </div>
   </div>-->
   <div id="order-book" class="border w-1/2 text-center">
-    <div id="top-of-book" class="inline-block w-1/2 float-left">
-      <span class="border-b">Top of Book</span>
+    <div id="top-of-book" class="inline-block w-1/2 float-left pl-2 pr-2">
       <div class="w-full">
-        <table style="border-collapse: collapse; border-spacing: 0;" class="w-full">
+        <span class="border-b">Top of Book</span>
+        <table class="w-full">
           <tbody>
             <tr>
               <th></th>
@@ -65,9 +60,9 @@
         </table>
       </div>
     </div>
-    <div id="recent-trades" class="inline-block w-1/2 float-left">
-      <span class="border-b">Last 10 Trades</span>
+    <div id="recent-trades" class="inline-block w-1/2 float-left pl-2 pr-2">
       <div class="w-full">
+        <span class="border-b">Last 10 Trades</span>
         <table class="w-full">
           <tbody>
             <tr>
@@ -89,15 +84,6 @@
     <div id="bids">
     </div>
   </div>
-
-  <!-- Expected Values -->
-  <div class="clear-both">
-    <h1>Expected Values</h1>
-    <%= for round_value <- Freecon.Games.expected_value(@game.game_id) do %>
-    <p><%= round_value %></p>
-    <% end %>
-  </div>
-
   <!-- TODO: Display graph of transactions -->
 
   <!-- TODO: Display table of participant details (cash, shares) -->
