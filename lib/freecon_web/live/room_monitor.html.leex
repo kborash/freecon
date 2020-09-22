@@ -1,22 +1,13 @@
-<div class="pl-2 pr-2">
+<div class="pl-2 pr-2 text-center">
   <!-- TODO: Display experiment monitor -->
   <h1 class="text-5xl">Monitoring Room <%= @room.code %></h1>
   <hr />
 
   <h2 class="text-3xl text-bold">Round <%= @game.round %></h2>
-  <h3 class="text-2xl text-bold">Expected Share Value: <%= Enum.at(Freecon.Games.expected_value(@game.game_id), @game.round - 1) %></h3>
+  <h3 class="text-2xl text-bold mt-5">Expected Share Value: <%= Enum.at(Freecon.Games.expected_value(@game.game_id), @game.round - 1) %></h3>
 
-  <!-- TODO: Style order book -->
-  <h2 class="text-3xl text-bold">Order Book</h2>
-  <!--<div id="market-prices">
-    <div id="best-ask">
-      <span>Market Ask: <span><%= @game.market_ask %></span></span>
-    </div>
-    <div id="best-bid">
-      <span>Market Bid: <span><%= @game.market_bid %></span></span>
-    </div>
-  </div>-->
-  <div id="order-book" class="border w-1/2 text-center">
+  <h2 class="text-3xl text-bold mt-5">Order Book</h2>
+  <div id="order-book" class="border w-1/2 text-center ml-auto mr-auto">
     <div id="top-of-book" class="inline-block w-1/2 float-left pl-2 pr-2">
       <div class="w-full">
         <span class="border-b">Top of Book</span>
