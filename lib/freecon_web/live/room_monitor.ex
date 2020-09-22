@@ -17,11 +17,11 @@ defmodule FreeconWeb.RoomMonitor do
   end
 
   def handle_info(:update, socket) do
-    socket = assign(
-      socket,
-      game: GenServer.call(via_tuple(socket.assigns.room.code), :game)
-    )
-    {:noreply, socket}
+    {:noreply, assign_game(socket)}
+  end
+
+  def handle_info(:round_completed, socket) do
+    {:noreply, assign_game(socket)}
   end
 
   defp via_tuple(name) do
@@ -36,7 +36,14 @@ defmodule FreeconWeb.RoomMonitor do
     Enum.take(Enum.take(game.bids, 5) ++ List.duplicate([price: "--", quantity: "--"], 5), 5)
   end
 
-  def recent_transactions(game) do
+  defp recent_transactions(game) do
     Enum.take(Enum.reverse(Enum.take(game.transactions, 10)) ++ List.duplicate([price: "--", quantity: "--"], 10), 10)
+  end
+
+  defp assign_game(socket) do
+    assign(
+      socket,
+      game: GenServer.call(via_tuple(socket.assigns.room.code), :game)
+    )
   end
 end
