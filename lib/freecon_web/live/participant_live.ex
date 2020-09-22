@@ -187,10 +187,15 @@ defmodule FreeconWeb.ParticipantLive do
   end
 
   defp time_remaining(expiration_time) do
-    Timex.Interval.new(from: Timex.now(), until: expiration_time)
-    |> Timex.Interval.duration(:seconds)
-    |> Timex.Duration.from_seconds()
-    |> Timex.format_duration(:humanized)
+    case Timex.now() < expiration_time do
+      true ->
+        Timex.Interval.new(from: Timex.now(), until: expiration_time)
+        |> Timex.Interval.duration(:seconds)
+        |> Timex.Duration.from_seconds()
+        |> Timex.format_duration(:humanized)
+      _ ->
+        "Round Finished."
+    end
   end
 
   defp active_order?(game, participant) do
