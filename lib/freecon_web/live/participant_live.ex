@@ -106,7 +106,7 @@ defmodule FreeconWeb.ParticipantLive do
       to: FreeconWeb.Router.Helpers.live_path(
         socket,
         FreeconWeb.ParticipantReviewLive,
-        code: socket.assigns.room_code,
+        code: socket.assigns.game.room_name,
         participant: socket.assigns.participant_uuid
       )
     )}
@@ -187,8 +187,8 @@ defmodule FreeconWeb.ParticipantLive do
   end
 
   defp time_remaining(expiration_time) do
-    case Timex.now() < expiration_time do
-      true ->
+    case Time.compare(Timex.now(), expiration_time) do
+      :lt ->
         Timex.Interval.new(from: Timex.now(), until: expiration_time)
         |> Timex.Interval.duration(:seconds)
         |> Timex.Duration.from_seconds()
