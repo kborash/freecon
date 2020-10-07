@@ -1,0 +1,43 @@
+<div class="w-full">
+  <h1 class="text-3xl font-bold text-center pb-4 pt-4">Thanks for participating!</h1>
+  <hr/>
+  <h2 class="text-2xl text-center pt-4">Round Results</h2>
+  <div id="previous-round-results" class="flex justify-center">
+    <div class="rounded-lg border border-gray-400 p-4 w-10/12">
+      <table class="table-auto w-full text-center">
+        <thead>
+        <tr>
+          <th>Round</th>
+          <th>Cash</th>
+          <th>Shares</th>
+          <th>Interest Earned</th>
+          <th>Share Dividends</th>
+        </tr>
+        </thead>
+        <tbody>
+        <%= for round_result <- @round_results do %>
+        <tr>
+          <td class="border px-4 py-2"><%= round_result.round_number %></td>
+          <td class="border px-4 py-2"><%= round_result.cash %></td>
+          <td class="border px-4 py-2"><%= round_result.shares %></td>
+          <td class="border px-4 py-2"><%= round_result.interest %></td>
+          <td class="border px-4 py-2"><%= round_result.dividends %></td>
+        </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2 class="pt-4 pb-4 text-2xl text-center">Trading Statistics</h2>
+  <div class="flex flex-wrap w-100 text-center">
+    <div id="sales" class="w-1/2 pb-5">
+      <h2 class="text-xl font-bold">Sales</h2>
+      <%= @transaction_statistics.sells %>
+    </div>
+    <div id="purchases" class="w-1/2">
+      <h2 class="text-xl font-bold">Purchases</h2>
+      <%= @transaction_statistics.buys %>
+    </div>
+  </div>
+</div>

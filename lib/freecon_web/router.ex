@@ -40,6 +40,7 @@ defmodule FreeconWeb.Router do
     live "/", ProfessorDashboard
     live "/room/:id", RoomLive
     live "/room/monitor/:id", RoomMonitor
+    get "/room/review/:id", RoomReviewController, :show
   end
 
   # Other scopes may use custom stacks.

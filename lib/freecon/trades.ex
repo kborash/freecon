@@ -7,6 +7,7 @@ defmodule Freecon.Trades do
   alias Freecon.Repo
 
   alias Freecon.Trades.Trade
+  alias Freecon.Rounds.Round
 
   @doc """
   Returns the list of trades.
@@ -100,5 +101,26 @@ defmodule Freecon.Trades do
   """
   def change_trade(%Trade{} = trade, attrs \\ %{}) do
     Trade.changeset(trade, attrs)
+  end
+
+  def trade_statistics(game_id, participant_id) do
+    # Get total trades
+    buys_query =
+      from t in Trade,
+        left_join: r in Round,
+        on: r.id == t.round_id,
+        where: r.game_id == ^game_id and (t.buyer_id == ^participant_id),
+        select: count()
+
+    sells_query = from t in Trade,
+         left_join: r in Round,
+         on: r.id == t.round_id,
+         where: r.game_id == ^game_id and (t.seller_id == ^participant_id),
+         select: count()
+
+    %{
+      buys: Repo.one(buys_query),
+      sells: Repo.one(sells_query)
+    }
   end
 end

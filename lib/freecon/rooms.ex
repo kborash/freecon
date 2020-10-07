@@ -8,6 +8,8 @@ defmodule Freecon.Rooms do
 
   alias Freecon.Rooms.Room
   alias Freecon.Games.Game
+  alias Freecon.Trades.Trade
+  alias Freecon.Rounds.Round
   alias Freecon.Participants.Participant
 
   @doc """
@@ -161,5 +163,32 @@ defmodule Freecon.Rooms do
     ?A..?Z
     |> Enum.take_random(10)
     |> List.to_string()
+  end
+
+  def transactions(room_id) do
+    query =
+      from t in Trade,
+           left_join: r in Round,
+           on: r.id == t.round_id,
+           left_join: p in Participant,
+           on: p.id == t.buyer_id,
+           where: p.room_id == ^room_id,
+           group_by: [r.round_number, t.price],
+           select: {r.round_number - 1, t.price, count()}
+
+    Repo.all(query)
+  end
+
+  def rounds(room_id) do
+    query =
+      from r in Round,
+      left_join: g in Game,
+      on: g.id == r.game_id,
+      left_join: rm in Room,
+      on: rm.id == g.room_id,
+      where: rm.id == ^room_id,
+      select: {r.round_number}
+
+    Repo.all(query)
   end
 end

@@ -34,6 +34,7 @@ defmodule FreeconWeb.ParticipantLive do
     participant = Participants.get_participant_by_identifier!(participant_uuid)
     Phoenix.PubSub.subscribe(Freecon.PubSub, room_code)
     socket = assign(socket, participant: participant)
+    socket = assign(socket, room_code: room_code)
     socket = assign_game(socket, room_code)
     socket = assign(socket, time_remaining: time_remaining(socket.assigns.game.round_ends))
     socket = assign_round_history(socket)
@@ -106,8 +107,8 @@ defmodule FreeconWeb.ParticipantLive do
       to: FreeconWeb.Router.Helpers.live_path(
         socket,
         FreeconWeb.ParticipantReviewLive,
-        code: socket.assigns.game.room_name,
-        participant: socket.assigns.participant_uuid
+        code: socket.assigns.room_code,
+        participant: socket.assigns.participant.identifier
       )
     )}
   end
