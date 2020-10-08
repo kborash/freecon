@@ -12,7 +12,6 @@ defmodule FreeconWeb.RoomLive do
       socket = put_flash(socket, :error, "Room not found.")
       {:ok, push_redirect(socket, to: Routes.live_path(socket, FreeconWeb.ProfessorDashboard))}
     else
-      # TODO: Load room's games
       room = hd(room)
 
       socket = assign(socket, room: room)
@@ -46,21 +45,23 @@ defmodule FreeconWeb.RoomLive do
     </div>
 
     <div class="pl-1">
-      <button phx-click="launch-room" class="rounded bg-red-500 px-4 py-2 text-white font-semibold">Launch Room</div>
+      <button phx-click="launch-room" class="rounded bg-red-500 px-4 py-2 text-white font-semibold <%= if !@room.active do %> opacity-50 cursor-not-allowed <% end %>">Launch Room</button>
+      <button phx-click="review-room" class="rounded bg-green-500 px-4 py-2 text-white font-semibold <%= if @room.active do %> opacity-50 cursor-not-allowed <% end %>">Review Room</button>
     </div>
     """
   end
 
   def handle_event("add-game", _, socket) do
-    {:ok, game} = Games.create_game(%{
-      name: "Assets Trading",
-      parameters: %{
-        rounds: 10,
-        dividends: [1, 0.5, 1, 0.5, 1, 0.5, 1, 0.5, 1, 0.5],
-        endowment: 100
-      },
-      room_id: socket.assigns.room.id
-    })
+    {:ok, game} =
+      Games.create_game(%{
+        name: "Assets Trading",
+        parameters: %{
+          rounds: 10,
+          dividends: [1, 0.5, 1, 0.5, 1, 0.5, 1, 0.5, 1, 0.5],
+          endowment: 100
+        },
+        room_id: socket.assigns.room.id
+      })
 
     socket = assign_games(socket)
 
@@ -70,19 +71,48 @@ defmodule FreeconWeb.RoomLive do
   def handle_event("launch-room", _, socket) do
     game = hd(Games.games_for_room(socket.assigns.room.id))
 
-    Games.start_game(game.id)
+    case game.started do
+      true ->
+        {:noreply, socket}
 
-    {:ok, _pid} =
-      DynamicSupervisor.start_child(Freecon.GameSupervisor, {GameServer, name: via_tuple(socket.assigns.room.code), room: socket.assigns.room})
+      false ->
+        Games.start_game(game.id)
 
-    Phoenix.PubSub.broadcast(Freecon.PubSub, socket.assigns.room.code, :start)
-    {:noreply, push_redirect(socket, to: Routes.live_path(socket, FreeconWeb.RoomMonitor, socket.assigns.room.id))}
+        {:ok, _pid} =
+          DynamicSupervisor.start_child(
+            Freecon.GameSupervisor,
+            {GameServer, name: via_tuple(socket.assigns.room.code), room: socket.assigns.room}
+          )
+
+        Phoenix.PubSub.broadcast(Freecon.PubSub, socket.assigns.room.code, :start)
+
+        {:noreply,
+         push_redirect(socket,
+           to: Routes.live_path(socket, FreeconWeb.RoomMonitor, socket.assigns.room.id)
+         )}
+    end
+  end
+
+  def handle_event("review-room", _, socket) do
+    game = hd(Games.games_for_room(socket.assigns.room.id))
+
+    case game.started do
+      true ->
+        {:noreply,
+          push_redirect(socket,
+            to: Routes.live_path(socket, FreeconWeb.RoomReview, socket.assigns.room.id)
+          )}
+
+      false ->
+        {:noreply, socket}
+    end
   end
 
   defp assign_games(socket) do
-    socket = assign(socket,
-      games: Games.games_for_room(socket.assigns.room.id),
-    )
+    socket =
+      assign(socket,
+        games: Games.games_for_room(socket.assigns.room.id)
+      )
   end
 
   defp via_tuple(name) do

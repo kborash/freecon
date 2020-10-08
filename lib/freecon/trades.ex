@@ -123,4 +123,16 @@ defmodule Freecon.Trades do
       sells: Repo.one(sells_query)
     }
   end
+
+  def all_trades_by_round(game_id) do
+    query =
+      from t in Trade,
+        left_join: r in Round,
+        on: r.id == t.round_id,
+        where: r.game_id == ^game_id,
+        group_by: [r.round_number, t.price],
+        select: [r.round_number - 1, t.price, count()]
+
+    Repo.all(query)
+  end
 end

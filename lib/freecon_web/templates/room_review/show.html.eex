@@ -1,0 +1,13 @@
+<h1 class="text-3xl text-center">Experiment Review</h1>
+
+<div id="expected_values_and_transactions_graph" style="width: 800px; height: 550px;" class="mr-auto ml-auto">
+
+</div>
+
+<script type="application/javascript">
+  window.game_review_chart = {};
+  window.game_review_chart.expected_values = <%= @expected_values %>;
+  window.game_review_chart.transactions = <%= @transactions %>;
+</script>
+
+<script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/professor.js") %>"></script>
