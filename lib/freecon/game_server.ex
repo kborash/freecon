@@ -243,7 +243,7 @@ defmodule Freecon.GameServer do
 
             process_transactions(
               struct(game, %{
-                transactions: game.transactions ++ [price: closing_price, quantity: high_bid[:quantity]],
+                transactions: game.transactions ++ [[price: closing_price, quantity: high_bid[:quantity]]],
                 participants: participants,
                 asks: [
                   [
