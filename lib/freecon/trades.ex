@@ -131,7 +131,7 @@ defmodule Freecon.Trades do
         on: r.id == t.round_id,
         where: r.game_id == ^game_id,
         group_by: [r.round_number, t.price],
-        select: [r.round_number - 1, t.price, count()]
+        select: [r.round_number - 1, t.price, sum(t.quantity)]
 
     Repo.all(query)
   end
