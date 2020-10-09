@@ -140,7 +140,7 @@ defmodule Freecon.GameServer do
     if available_shares(game, participant, quantity) do
       asks =
         [
-          [price: ask, quantity: quantity, posted: Time.utc_now(), participant: participant]
+          [price: ask, quantity: quantity, participant: participant]
           | game.asks
         ]
         |> Enum.sort(&(&1[:price] < &2[:price]))
@@ -160,7 +160,7 @@ defmodule Freecon.GameServer do
     if available_funds(game, participant, bid, quantity) do
       bids =
         [
-          [price: bid, quantity: quantity, posted: Time.utc_now(), participant: participant]
+          [price: bid, quantity: quantity, participant: participant]
           | game.bids
         ]
         |> Enum.sort(&(&1[:price] > &2[:price]))
@@ -180,7 +180,7 @@ defmodule Freecon.GameServer do
       [high_bid | other_bids] = game.bids
 
       if high_bid[:price] >= low_ask[:price] do
-        closing_price = calculate_closing_price(high_bid, low_ask)
+        closing_price = low_ask[:price]
 
         cond do
           high_bid[:quantity] > low_ask[:quantity] ->
@@ -213,7 +213,6 @@ defmodule Freecon.GameServer do
                   [
                     price: high_bid[:price],
                     quantity: remainder_quantity,
-                    posted: high_bid[:posted],
                     participant: high_bid[:participant]
                   ]
                   | other_bids
@@ -244,13 +243,12 @@ defmodule Freecon.GameServer do
 
             process_transactions(
               struct(game, %{
-                transactions: game.transactions ++ [high_bid],
+                transactions: game.transactions ++ [price: closing_price, quantity: high_bid[:quantity]],
                 participants: participants,
                 asks: [
                   [
                     price: low_ask[:price],
                     quantity: remainder_quantity,
-                    posted: low_ask[:posted],
                     participant: low_ask[:participant]
                   ]
                   | other_asks
@@ -292,8 +290,6 @@ defmodule Freecon.GameServer do
       game
     end
   end
-
-  #  def clear_transaction()
 
   def set_market_rates(game) do
     game
@@ -414,16 +410,6 @@ defmodule Freecon.GameServer do
     participants
     |> Map.put(buyer.participant, buyer)
     |> Map.put(seller.participant, seller)
-  end
-
-  defp calculate_closing_price(bid, ask) do
-    case Time.compare(bid[:posted], ask[:posted]) do
-      :lt ->
-        bid[:price]
-
-      _ ->
-        ask[:price]
-    end
   end
 
   defp available_shares(game, participant, shares) do

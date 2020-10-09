@@ -8,17 +8,12 @@ defmodule FreeconWeb.RoomLive do
   def mount(%{"id" => room_id}, session, socket) do
     room = Rooms.get_room_for_professor(room_id, session["professor"][:id])
 
-    if room == [] do
-      socket = put_flash(socket, :error, "Room not found.")
-      {:ok, push_redirect(socket, to: Routes.live_path(socket, FreeconWeb.ProfessorDashboard))}
-    else
-      room = hd(room)
+    active_game = Registry.lookup(Freecon.GameRegistry, room.code) != []
 
-      socket = assign(socket, room: room)
-      socket = assign_games(socket)
+    socket = assign(socket, room: room, active_game: active_game)
+    socket = assign_games(socket)
 
-      {:ok, socket, temporary_assigns: [games: []]}
-    end
+    {:ok, socket, temporary_assigns: [games: []]}
   end
 
   def render(assigns) do
@@ -45,8 +40,9 @@ defmodule FreeconWeb.RoomLive do
     </div>
 
     <div class="pl-1">
-      <button phx-click="launch-room" class="rounded bg-red-500 px-4 py-2 text-white font-semibold <%= if !@room.active do %> opacity-50 cursor-not-allowed <% end %>">Launch Room</button>
-      <button phx-click="review-room" class="rounded bg-green-500 px-4 py-2 text-white font-semibold <%= if @room.active do %> opacity-50 cursor-not-allowed <% end %>">Review Room</button>
+      <button phx-click="launch-room" class="rounded bg-red-500 px-4 py-2 text-white font-semibold <%= if @active_game do %> opacity-50 cursor-not-allowed <% end %>">Launch Room</button>
+      <button phx-click="monitor-room" class="rounded bg-yellow-500 px-4 py-2 text-white font-semibold <%= if !@active_game do %> opacity-50 cursor-not-allowed <% end %>">Monitor Room</button>
+      <button phx-click="review-room" class="rounded bg-green-500 px-4 py-2 text-white font-semibold">Review Room</button>
     </div>
     """
   end
@@ -76,6 +72,7 @@ defmodule FreeconWeb.RoomLive do
         {:noreply, socket}
 
       false ->
+        Rooms.activate_room(socket.assigns.room.id)
         Games.start_game(game.id)
 
         {:ok, _pid} =
@@ -93,6 +90,13 @@ defmodule FreeconWeb.RoomLive do
     end
   end
 
+  def handle_event("monitor-room", _, socket) do
+    {:noreply,
+      push_redirect(socket,
+        to: Routes.live_path(socket, FreeconWeb.RoomMonitor, socket.assigns.room.id)
+      )}
+  end
+
   def handle_event("review-room", _, socket) do
     game = hd(Games.games_for_room(socket.assigns.room.id))
 
@@ -100,7 +104,7 @@ defmodule FreeconWeb.RoomLive do
       true ->
         {:noreply,
           push_redirect(socket,
-            to: Routes.live_path(socket, FreeconWeb.RoomReview, socket.assigns.room.id)
+            to: Routes.room_review_path(socket, :show, socket.assigns.room.id)
           )}
 
       false ->

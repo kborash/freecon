@@ -140,7 +140,7 @@ defmodule Freecon.Rooms do
                  where: r.professor_id == ^professor_id and r.id == ^room_id,
                  select: r
 
-    Repo.all(query)
+    Repo.one!(query)
   end
 
   def games_for_room(room_id) do
@@ -190,5 +190,17 @@ defmodule Freecon.Rooms do
       select: {r.round_number}
 
     Repo.all(query)
+  end
+
+  def activate_room(room_id) do
+    Repo.update_all(
+      from(r in Room, where: r.id == ^room_id), set: [active: true]
+    )
+  end
+
+  def deactivate_room(room_id) do
+    Repo.update_all(
+      from(r in Room, where: r.id == ^room_id), set: [active: false]
+    )
   end
 end
