@@ -116,7 +116,7 @@ defmodule Freecon.GameServer do
       Process.send_after(self(), :end_round, 60_000)
       {:noreply, game}
     else
-      IO.inspect("Game completed!")
+      game = complete_round(game)
       {:noreply, complete_game(game)}
     end
   end
