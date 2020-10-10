@@ -42,9 +42,11 @@ defmodule FreeconWeb.ParticipantReviewLive do
   end
 
   defp assign_round_results(socket) do
+    round_results = RoundResults.list_round_results(socket.assigns.game.id, socket.assigns.participant.id)
     assign(
       socket,
-      round_results: Enum.reverse(RoundResults.list_round_results(socket.assigns.game.id, socket.assigns.participant.id))
+      final_round_results: hd(round_results),
+      round_results: Enum.reverse(round_results)
     )
   end
 
