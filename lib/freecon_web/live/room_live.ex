@@ -32,6 +32,7 @@ defmodule FreeconWeb.RoomLive do
           <%= for dividend <- game.parameters["dividends"] do %>
             <span class="px-2 py-1 border border-black rounded font-bold"><%= dividend %></span>
           <% end %><br />
+          Interest Rate: <%= game.parameters["interest_rate"] * 100 %>%<br />
           Endowment: <%= game.parameters["endowment"] %><br />
           Shares: <%= game.parameters["shares"] %>
         </div>
@@ -54,6 +55,7 @@ defmodule FreeconWeb.RoomLive do
         parameters: %{
           rounds: 10,
           dividends: [1, 0.5, 1, 0.5, 1, 0.5, 1, 0.5, 1, 0.5],
+          interest_rate: 0.05,
           endowment: 100
         },
         room_id: socket.assigns.room.id
@@ -107,7 +109,7 @@ defmodule FreeconWeb.RoomLive do
             to: Routes.room_review_path(socket, :show, socket.assigns.room.id)
           )}
 
-      false ->
+      _ ->
         {:noreply, socket}
     end
   end
