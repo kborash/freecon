@@ -1,0 +1,29 @@
+version: '3'
+
+volumes:
+  freecon_postgres_data_local: {}
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: freecon_web
+    depends_on:
+      - db
+    volumes:
+      - ./config:/app/config
+      - ./lib:/app/lib
+      - ./test:/app/test
+      - ./priv:/app/priv
+    ports:
+      - "127.0.0.1:8010:4000"
+    command: mix phx.server
+
+  db:
+    image: postgres:13-alpine
+    volumes:
+      - freecon_postgres_data_local:/var/lib/postgresql/data
+    env_file: .env
+    ports:
+      - "127.0.0.1:12000:5432"
