@@ -38,3 +38,6 @@ npm-debug.log
 # Jetbrains IDE files
 freecon.iml
 .idea
+
+# Local variables
+.env

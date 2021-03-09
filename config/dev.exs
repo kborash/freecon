@@ -5,7 +5,7 @@ config :freecon, Freecon.Repo,
   username: "postgres",
   password: "postgres",
   database: "freecon_dev",
-  hostname: "localhost",
+  hostname: "db",
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
@@ -25,7 +25,8 @@ config :freecon, FreeconWeb.Endpoint,
       "node_modules/webpack/bin/webpack.js",
       "--mode",
       "development",
-      "--watch-stdin",
+      "--watch",
+      "--watch-options-stdin",
       cd: Path.expand("../assets", __DIR__)
     ]
   ]
