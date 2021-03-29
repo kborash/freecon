@@ -37,7 +37,7 @@ defmodule FreeconWeb.Router do
   scope "/dashboard/", FreeconWeb do
     pipe_through [:browser, :protected]
 
-    live "/", ProfessorDashboard
+    live "/", ProfessorDashboardLive
     live "/room/:id", RoomLive
     live "/room/monitor/:id", RoomMonitor
     get "/room/review/:id", RoomReviewController, :show
