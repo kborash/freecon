@@ -1,6 +1,8 @@
 defmodule FreeconWeb.Router do
   use FreeconWeb, :router
 
+  import FreeconWeb.UserAuth
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -8,10 +10,7 @@ defmodule FreeconWeb.Router do
     plug :put_root_layout, {FreeconWeb.LayoutView, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-  end
-
-  pipeline :protected do
-    plug FreeconWeb.VerifyProfessorSession
+    plug :fetch_current_user
   end
 
   pipeline :api do
@@ -26,16 +25,11 @@ defmodule FreeconWeb.Router do
     live "/participant", ParticipantLive
     live "/participant/review", ParticipantReviewLive
 
-    resources "/professors", ProfessorController, only: [:new, :create]
-    resources "/sessions", SessionController, only: [:create]
     resources "/participants", ParticipantSessionController, only: [:create]
-
-    get "/login", SessionController, :new
-    get "/logout", SessionController, :delete
   end
 
   scope "/dashboard/", FreeconWeb do
-    pipe_through [:browser, :protected]
+    pipe_through [:browser, :require_authenticated_user]
 
     live "/", ProfessorDashboardLive
     live "/room/:id", RoomLive
@@ -62,5 +56,37 @@ defmodule FreeconWeb.Router do
       pipe_through :browser
       live_dashboard "/monitoring_dashboard", metrics: FreeconWeb.Telemetry
     end
+  end
+
+  ## Authentication routes
+
+  scope "/", FreeconWeb do
+    pipe_through [:browser, :redirect_if_user_is_authenticated]
+
+    get "/users/register", UserRegistrationController, :new
+    post "/users/register", UserRegistrationController, :create
+    get "/users/log_in", UserSessionController, :new
+    post "/users/log_in", UserSessionController, :create
+#    get "/users/reset_password", UserResetPasswordController, :new
+#    post "/users/reset_password", UserResetPasswordController, :create
+#    get "/users/reset_password/:token", UserResetPasswordController, :edit
+#    put "/users/reset_password/:token", UserResetPasswordController, :update
+  end
+
+  scope "/", FreeconWeb do
+    pipe_through [:browser, :require_authenticated_user]
+
+    get "/users/settings", UserSettingsController, :edit
+    put "/users/settings", UserSettingsController, :update
+#    get "/users/settings/confirm_email/:token", UserSettingsController, :confirm_email
+  end
+
+  scope "/", FreeconWeb do
+    pipe_through [:browser]
+
+    delete "/users/log_out", UserSessionController, :delete
+    get "/users/confirm", UserConfirmationController, :new
+    post "/users/confirm", UserConfirmationController, :create
+    get "/users/confirm/:token", UserConfirmationController, :confirm
   end
 end

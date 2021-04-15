@@ -3,20 +3,24 @@ defmodule FreeconWeb.ProfessorDashboardLive do
 
   alias Freecon.Rooms
   alias Freecon.Games
+  alias Freecon.Accounts
 
   def mount(_params, session, socket) do
-    professor = session["professor"]
+    user = Accounts.get_user_by_session_token(session["user_token"])
+
+    socket = assign_current_user(socket, session)
+
     socket = assign(
       socket,
-      professor: professor,
-      active_rooms: Rooms.active_rooms(professor[:id]),
-      closed_rooms: Rooms.closed_rooms(professor[:id])
+      user: user,
+      active_rooms: Rooms.active_rooms(user.id),
+      closed_rooms:  Rooms.closed_rooms(user.id)
     )
     {:ok, socket, temporary_assigns: [active_rooms: [], closed_rooms: []]}
   end
 
   def handle_event("add-room", %{"room_name" => room_name}, socket) do
-    {:ok, room} = Rooms.create_room(%{professor_id: socket.assigns.professor[:id], name: room_name})
+    {:ok, room} = Rooms.create_room(%{user_id: socket.assigns.user.id, name: room_name})
     {:ok, game} = Games.create_game(%{
       name: "Assets Trading",
       parameters: %{
@@ -33,15 +37,15 @@ defmodule FreeconWeb.ProfessorDashboardLive do
   end
 
   def handle_event("deactivate-room", %{"room_id" => room_id}, socket) do
-    Rooms.close_room(socket.assigns.professor[:id], room_id)
+    Rooms.close_room(socket.assigns.user.id, room_id)
     socket = assign_rooms(socket)
     {:noreply, socket}
   end
 
   def assign_rooms(socket) do
     assign(socket,
-      active_rooms: Rooms.active_rooms(socket.assigns.professor[:id]),
-      closed_rooms: Rooms.closed_rooms(socket.assigns.professor[:id])
+      active_rooms: Rooms.active_rooms(socket.assigns.user.id),
+      closed_rooms: Rooms.closed_rooms(socket.assigns.user.id)
     )
   end
 end

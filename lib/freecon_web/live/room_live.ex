@@ -4,9 +4,11 @@ defmodule FreeconWeb.RoomLive do
   alias Freecon.Games
   alias Freecon.Rooms
   alias Freecon.GameServer
+  alias Freecon.Accounts
 
   def mount(%{"id" => room_id}, session, socket) do
-    room = Rooms.get_room_for_professor(room_id, session["professor"][:id])
+    user = Accounts.get_user_by_session_token(session["user_token"])
+    room = Rooms.get_room_for_user(room_id, user.id)
 
     active_game = Registry.lookup(Freecon.GameRegistry, room.code) != []
 

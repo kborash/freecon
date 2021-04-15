@@ -110,34 +110,34 @@ defmodule Freecon.Rooms do
     Repo.get_by(Room, code: room_code)
   end
 
-  def close_room(professor_id, room_id) do
+  def close_room(user_id, room_id) do
     Repo.update_all(
-      from(r in Room, where: r.professor_id == ^professor_id and r.id == ^room_id),
+      from(r in Room, where: r.user_id == ^user_id and r.id == ^room_id),
       set: [active: false]
     )
   end
 
-  def active_rooms(professor_id) do
+  def active_rooms(user_id) do
     query = from r in Room,
-                 where: r.professor_id == ^professor_id and r.active,
+                 where: r.user_id == ^user_id and r.active,
                  order_by: [desc: :updated_at],
                  select: r
 
     Repo.all(query)
   end
 
-  def closed_rooms(professor_id) do
+  def closed_rooms(user_id) do
     query = from r in Room,
-                 where: r.professor_id == ^professor_id and r.active == false,
+                 where: r.user_id == ^user_id and r.active == false,
                  order_by: [desc: :updated_at],
                  select: r
 
     Repo.all(query)
   end
 
-  def get_room_for_professor(room_id, professor_id) do
+  def get_room_for_user(room_id, user_id) do
     query = from r in Room,
-                 where: r.professor_id == ^professor_id and r.id == ^room_id,
+                 where: r.user_id == ^user_id and r.id == ^room_id,
                  select: r
 
     Repo.one!(query)

@@ -46,6 +46,8 @@ defmodule FreeconWeb do
       use Phoenix.LiveView,
         layout: {FreeconWeb.LayoutView, "live.html"}
 
+      import FreeconWeb.LiveHelpers
+
       unquote(view_helpers())
     end
   end
