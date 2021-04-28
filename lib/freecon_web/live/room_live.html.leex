@@ -6,22 +6,34 @@
   <%= for game <- @games do %>
   <div class="game pl-1">
     <h2 class="font-bold text-xl"><%= game.name %></h2>
+    <%= if @active_game do %>
     <div>
       Rounds: <%= game.parameters["rounds"] %><br />
       Dividends:
-      <%= for dividend <- game.parameters["dividends"] do %>
+      <%= for dividend <- game.parameters["dividend_schedule"] do %>
       <span class="px-2 py-1 border border-black rounded font-bold"><%= dividend %></span>
       <% end %><br />
       Interest Rate: <%= game.parameters["interest_rate"] * 100 %>%<br />
       Endowment: <%= game.parameters["endowment"] %><br />
-      Shares: <%= game.parameters["shares"] %>
+      Shares: <%= game.parameters["initial_shares"] %>
     </div>
+    <% else %>
+    <div>
+      <p>Form for editing the game parameters.</p>
+    </div>
+    <% end %>
   </div>
+
   <% end %>
 </div>
 
+<%= if @games == [] do %>
+<button phx-click="add-game">Create a game</button>
+<% else %>
 <div class="pl-1">
   <button phx-click="launch-room" class="rounded bg-red-500 px-4 py-2 text-white font-semibold <%= if @active_game do %> opacity-50 cursor-not-allowed <% end %>">Launch Room</button>
   <button phx-click="monitor-room" class="rounded bg-yellow-500 px-4 py-2 text-white font-semibold <%= if !@active_game do %> opacity-50 cursor-not-allowed <% end %>">Monitor Room</button>
   <button phx-click="review-room" class="rounded bg-green-500 px-4 py-2 text-white font-semibold">Review Room</button>
 </div>
+<% end %>
+

@@ -25,10 +25,10 @@ defmodule FreeconWeb.ProfessorDashboardLive do
       name: "Assets Trading",
       parameters: %{
         rounds: 10,
-        dividends: [1, 0.5, 1, 0.5, 1, 0.5, 1, 0.5, 1, 0.5],
+        dividend_schedule: [1, 0.5, 1, 0.5, 1, 0.5, 1, 0.5, 1, 0.5],
         interest_rate: 0.05,
         endowment: 100,
-        shares: 5
+        initial_shares: 5
       },
       room_id: room.id
     })

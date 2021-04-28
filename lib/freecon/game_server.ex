@@ -128,7 +128,7 @@ defmodule Freecon.GameServer do
        %{
          participant: participant.id,
          cash: game.parameters["endowment"],
-         shares: game.parameters["shares"]
+         shares: game.parameters["initial_shares"]
        }}
     end)
     |> Map.new()
@@ -341,7 +341,7 @@ defmodule Freecon.GameServer do
             interest: round(values.cash * (game.parameters["interest_rate"] + 1) - values.cash),
             shares: values.shares,
             dividends:
-              round(values.shares * Enum.at(game.parameters["dividends"], game.round - 1))
+              round(values.shares * Enum.at(game.parameters["dividend_schedule"], game.round - 1))
           })
 
         {id,
@@ -350,7 +350,7 @@ defmodule Freecon.GameServer do
            | cash:
                round(
                  values.cash * (game.parameters["interest_rate"] + 1) +
-                   values.shares * Enum.at(game.parameters["dividends"], game.round - 1)
+                   values.shares * Enum.at(game.parameters["dividend_schedule"], game.round - 1)
                )
          }}
       end)
