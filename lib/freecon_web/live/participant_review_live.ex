@@ -14,7 +14,7 @@ defmodule FreeconWeb.ParticipantReviewLive do
         participant: nil,
       )
 
-    {:ok, socket, layout: {FreeconWeb.LayoutView, "participant.html"}}
+    {:ok, socket}
   end
 
   def handle_params(

@@ -22,8 +22,8 @@ defmodule FreeconWeb.Router do
 
     live "/", PageLive, :index
     live "/waiting", WaitingLive
-    live "/participant", ParticipantLive
-    live "/participant/review", ParticipantReviewLive
+    live "/participant", ParticipantLive, layout: {FreeconWeb.LayoutView, :participant_root}
+    live "/participant/review", ParticipantReviewLive, layout: {FreeconWeb.LayoutView, :participant_root}
 
     resources "/participants", ParticipantSessionController, only: [:create]
   end
