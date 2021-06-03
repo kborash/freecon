@@ -21,9 +21,9 @@ defmodule FreeconWeb.Router do
     pipe_through :browser
 
     live "/", PageLive, :index
-    live "/waiting", WaitingLive
-    live "/participant", ParticipantLive, layout: {FreeconWeb.LayoutView, :participant_root}
-    live "/participant/review", ParticipantReviewLive, layout: {FreeconWeb.LayoutView, :participant_root}
+    live "/waiting", WaitingLive, layout: {FreeconWeb.LayoutView, "participant_root.html"}
+    live "/participant", ParticipantLive, layout: {FreeconWeb.LayoutView, "participant_root.html"}
+    live "/participant/review", ParticipantReviewLive, layout: {FreeconWeb.LayoutView, "participant_root.html"}
 
     resources "/participants", ParticipantSessionController, only: [:create]
   end

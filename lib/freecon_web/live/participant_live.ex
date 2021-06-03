@@ -22,7 +22,7 @@ defmodule FreeconWeb.ParticipantLive do
         round_history: []
       )
 
-    {:ok, socket, layout: {FreeconWeb.LayoutView, "participant.html"}}
+    {:ok, socket}
   end
 
   def handle_params(
@@ -38,7 +38,21 @@ defmodule FreeconWeb.ParticipantLive do
     socket = assign_game(socket, room_code)
     socket = assign(socket, time_remaining: time_remaining(socket.assigns.game.round_ends))
     socket = assign_round_history(socket)
-    {:noreply, socket}
+
+    if socket.assigns.game.complete do
+      {:noreply, push_redirect(
+         socket,
+         to: FreeconWeb.Router.Helpers.live_path(
+           socket,
+           FreeconWeb.ParticipantReviewLive,
+           code: socket.assigns.room_code,
+           participant: socket.assigns.participant.identifier
+         )
+       )
+      }
+    else
+      {:noreply, socket}
+    end
   end
 
   def handle_event("bid-mode", _, socket) do
@@ -188,8 +202,8 @@ defmodule FreeconWeb.ParticipantLive do
   end
 
   defp time_remaining(expiration_time) do
-    case Time.compare(Timex.now(), expiration_time) do
-      :lt ->
+    case Timex.compare(Timex.now(), expiration_time) do
+      -1 ->
         Timex.Interval.new(from: Timex.now(), until: expiration_time)
         |> Timex.Interval.duration(:seconds)
         |> Timex.Duration.from_seconds()

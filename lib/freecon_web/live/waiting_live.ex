@@ -2,7 +2,7 @@ defmodule FreeconWeb.WaitingLive do
   use FreeconWeb, :live_view
 
   def mount(_params, _session, socket) do
-    {:ok, socket, layout: {FreeconWeb.LayoutView, "participant.html"}}
+    {:ok, socket}
   end
 
   def handle_params(%{"code" => room_code, "participant" => participant_id} = _params, _uri, socket) do
