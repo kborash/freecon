@@ -7,6 +7,7 @@ defmodule Freecon.Games do
   alias Freecon.Repo
 
   alias Freecon.Games.Game
+  alias Freecon.Games.GameParameters
 
   @doc """
   Returns the list of games.
@@ -122,5 +123,14 @@ defmodule Freecon.Games do
 
     game.parameters["rounds"]..1
     |> Enum.map(fn i -> Enum.sum(Enum.take(game.parameters["dividend_schedule"], -1 * i)) end)
+  end
+
+  def create_game_parameters(attrs \\ %{}) do
+    %GameParameters{}
+    |> GameParameters.changeset(attrs)
+  end
+
+  def change_game_parameters(%GameParameters{} = game_parameters, attrs \\ %{}) do
+    GameParameters.changeset(game_parameters, attrs)
   end
 end

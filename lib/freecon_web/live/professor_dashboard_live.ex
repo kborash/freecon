@@ -23,13 +23,7 @@ defmodule FreeconWeb.ProfessorDashboardLive do
     {:ok, room} = Rooms.create_room(%{user_id: socket.assigns.user.id, name: room_name})
     {:ok, game} = Games.create_game(%{
       name: "Assets Trading",
-      parameters: %{
-        rounds: 10,
-        dividend_schedule: [1, 0.5, 1, 0.5, 1, 0.5, 1, 0.5, 1, 0.5],
-        interest_rate: 0.05,
-        endowment: 100,
-        initial_shares: 5
-      },
+      parameters: Games.create_game_parameters.data,
       room_id: room.id
     })
     socket = assign_rooms(socket)

@@ -19,13 +19,35 @@
     </div>
     <% else %>
     <div>
-      <p>Form for editing the game parameters.</p>
-    </div>
+    <%= f = form_for @changeset, "#", [phx_submit: :save]%>
+      <div>
+      <%= label f, :rounds %>
+      <%= number_input f, :rounds %>
+      </div>
+
+      <div>
+      <%= label f, :interest_rate %>
+      <%= number_input f, :interest_rate, [step: 0.01, min: 0.0, max: 1.0] %>
+      </div>
+
+      <div>
+      <%= label f, :endowment %>
+      <%= number_input f, :endowment %>
+      </div>
+
+      <div>
+      <%= label f, :initial_shares %>
+      <%= number_input f, :initial_shares %>
+      </div>
+
+      <%= submit "Update Parameters", class: "rounded bg-blue-500 px-4 py-2 text-white font-semibold" %>
+    </form>
     <% end %>
   </div>
-
   <% end %>
 </div>
+
+<hr class="game-parameters-hr" />
 
 <%= if @games == [] do %>
 <button phx-click="add-game">Create a game</button>

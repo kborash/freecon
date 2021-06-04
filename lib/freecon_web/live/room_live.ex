@@ -1,10 +1,12 @@
 defmodule FreeconWeb.RoomLive do
   use FreeconWeb, :live_view
+#  use Phoenix.HTML
 
   alias Freecon.Games
   alias Freecon.Rooms
   alias Freecon.GameServer
   alias Freecon.Accounts
+  alias Freecon.Games.GameParameters
 
   def mount(%{"id" => room_id}, session, socket) do
     user = Accounts.get_user_by_session_token(session["user_token"])
@@ -12,10 +14,10 @@ defmodule FreeconWeb.RoomLive do
 
     active_game = Registry.lookup(Freecon.GameRegistry, room.code) != []
 
-    socket = assign(socket, room: room, active_game: active_game)
+    socket = assign(socket, room: room, active_game: active_game, changeset: Games.create_game_parameters())
     socket = assign_games(socket)
 
-    {:ok, socket, temporary_assigns: [games: []]}
+    {:ok, socket}
   end
 
   def handle_event("add-game", _, socket) do
@@ -82,6 +84,35 @@ defmodule FreeconWeb.RoomLive do
 
       _ ->
         {:noreply, socket}
+    end
+  end
+
+  def handle_event("validate", %{"game_parameters" => params}, socket) do
+    changeset =
+      %GameParameters{}
+      |> Games.change_game_parameters(params)
+
+    {:noreply,
+      socket
+      |> assign_games
+      |> assign(changeset: changeset)}
+  end
+
+  def handle_event("save", %{"game_parameters" => game_parameters_params}, socket) do
+    game_parameters_changeset =
+      %GameParameters{}
+      |> Games.change_game_parameters(game_parameters_params)
+
+    IO.inspect game_parameters_changeset
+    case Games.update_game(hd(socket.assigns.games), %{parameters: Ecto.Changeset.apply_changes(game_parameters_changeset)}) do
+      {:ok, _} ->
+        {:noreply,
+        socket
+        |> assign(changeset: game_parameters_changeset)
+        |> put_flash(:info, "Updated game parameters.")}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign(socket, changeset: changeset)}
     end
   end
 
