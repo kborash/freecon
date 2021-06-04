@@ -8,18 +8,18 @@
     </div>
   </form>
 
-  <h1 class="font-bold text-5xl">Active Rooms</h1>
+  <h1 class="font-bold text-5xl">Open Rooms</h1>
   <%= for room <- @active_rooms do %>
   <div>
     <h2 class="text-2xl"><%= room.name %></h2>
     <div class="pl-2">
       <a class="hover:underline cursor-pointer" href="<%= Routes.live_path(@socket, FreeconWeb.RoomLive, room.id) %>">Go to <%= room.code %> dashboard -></a><br />
-      <a class="hover:underline cursor-pointer" phx-click="deactivate-room" phx-value-room_id="<%= room.id %>"><button class="bg-gray-500 text-white font-semibold px-2 py-1 rounded">Archive Room</div></a>
+      <!-- <a class="hover:underline cursor-pointer" phx-click="deactivate-room" phx-value-room_id="<%= room.id %>"><button class="bg-gray-500 text-white font-semibold px-2 py-1 rounded">Archive Room</div></a> -->
     </div>
   <div>
   <% end %>
 
-  <h1 class="font-bold text-5xl">Inactive Rooms</h1>
+  <h1 class="font-bold text-5xl">Completed Rooms</h1>
   <%= for room <- @closed_rooms do %>
   <h2 class="text-2xl"><%= room.name %></h2>
   <div class="pl-2">
