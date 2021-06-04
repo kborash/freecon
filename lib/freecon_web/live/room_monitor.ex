@@ -24,6 +24,17 @@ defmodule FreeconWeb.RoomMonitor do
     {:noreply, assign_game(socket)}
   end
 
+  def handle_info(:game_completed, socket) do
+    {:noreply, push_redirect(
+      socket,
+      to: Routes.room_review_path(
+        socket,
+        :show,
+        socket.assigns.room.id
+      )
+    )}
+  end
+
   defp via_tuple(name) do
     {:via, Registry, {Freecon.GameRegistry, name}}
   end
