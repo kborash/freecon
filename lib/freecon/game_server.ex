@@ -121,6 +121,13 @@ defmodule Freecon.GameServer do
     end
   end
 
+  @impl
+  def handle_info(:cleanup_server, game) do
+    Rooms.deactivate_room(Rooms.find_by_code(game.room_name).id)
+
+    {:stop, :normal, game}
+  end
+
   def initialize_participants(game) do
     Rooms.participants_in_room(game.room_id)
     |> Enum.map(fn participant ->
@@ -381,6 +388,8 @@ defmodule Freecon.GameServer do
 
   def complete_game(game) do
     Phoenix.PubSub.broadcast(Freecon.PubSub, game.room_name, :game_completed)
+
+    Process.send_after(self(), :cleanup_server, 60_000)
 
     game
     |> struct(complete: true)
