@@ -1,23 +1,24 @@
 <div>
   <div class="w-full">
     <h2 class="text-center text-3xl">Round <%= @game.round %></h2>
-    <p class="m-4 text-center font-semibold text-green-500">
+    <p class="p-4 text-center font-semibold text-green-500">
       <%= @time_remaining %>
     </p>
   </div>
   <div id="market-prices">
     <h2 class="text-center text-3xl">Market Prices</h2>
     <p class="text-center">
-      <span>Bid: <%= @game.market_bid %></span>
-      <span>Ask: <%= @game.market_ask %></span>
+      <span>Bid: <span class="current-market-price"><%= @game.market_bid %></span></span>
+      <span>Ask: <span class="current-market-price"><%= @game.market_ask %></span></span>
     </p>
-    <div class="text-center">
+  </div>
+  <hr class="divider" />
+  <div class="text-center">
+    <div class="text-center" id="order-mode">
+      <p>Order Mode</p>
       <button class="bg-blue-500 text-white font-semibold px-4 py-2 rounded" phx-click="bid-mode">Bid</button>
       <button class="bg-red-500 text-white font-semibold px-4 py-2 rounded" phx-click="ask-mode">Ask</button>
     </div>
-  </div>
-  <hr class="mt-5 mb-5" />
-  <div class="text-center">
   <%= if active_order?(@game, @participant) do %>
     <div class="pb-2">
       <p class="font-bold text-xl">You have an active order!</p>
@@ -25,7 +26,7 @@
     </div>
   <% else %>
     <%= if @mode == "bid" do %>
-    <form phx-submit="bid" phx-change="update-bid">
+    <form phx-submit="bid" phx-change="update-bid" id="bid-form">
     <div class="pb-2">
       <div class="pb-2">
         Bid: <input class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="number" required min="1" name="bid" value="<%= @bid %>"><br />
@@ -39,7 +40,7 @@
     <% end %>
 
     <%= if @mode == "ask" do %>
-    <form phx-submit="ask" phx-change="update-ask">
+    <form phx-submit="ask" phx-change="update-ask" id="ask-form">
     <div class="pb-2">
       <div class="pb-2">
         Ask: <input class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="number" required min="1" name="ask" value="<%= @ask %>"><br />
@@ -53,13 +54,13 @@
     <% end %>
   <% end %>
   </div>
-  <hr />
+  <hr class="divider" />
   <div class="text-center">
-    <h2>Resources</h2>
+    <h2 class="text-2xl font-bold">Current Resources</h2>
     <p>Cash: <%= @resources.cash %></p>
     <p>Shares: <%= @resources.shares %></p>
   </div>
-  <hr />
+  <hr class="divider" />
   <div id="previous-round-results" class="flex justify-center">
     <div class="rounded-lg border border-gray-400 p-4 w-10/12">
       <table class="table-auto w-full text-center">
