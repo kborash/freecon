@@ -122,7 +122,7 @@ defmodule Freecon.Games do
     game = Repo.get(Game, game_id)
 
     game.parameters["rounds"]..1
-    |> Enum.map(fn i -> Enum.sum(Enum.take(game.parameters["dividend_schedule"], -1 * i)) end)
+    |> Enum.map(fn i -> (Enum.sum(game.parameters["dividend_schedule"]) / Enum.count(game.parameters["dividend_schedule"]) * i) end)
   end
 
   def create_game_parameters(attrs \\ %{}) do

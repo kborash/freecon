@@ -4,11 +4,11 @@ defmodule Freecon.Games.GameParameters do
 
   @derive {Jason.Encoder, only: [:rounds, :interest_rate, :endowment, :initial_shares, :dividend_schedule]}
   schema "game_parameters" do
-    field :rounds, :integer, default: 20
-    field :interest_rate, :float, default: 0.01
-    field :endowment, :integer, default: 100
-    field :initial_shares, :integer, default: 5
-    field :dividend_schedule, {:array, :float}, default: [0.1, 0.05, 0.1, 0.05, 0.1, 0.05, 0.1, 0.05, 0.1, 0.05, 0.1, 0.05, 0.1, 0.05, 0.1, 0.05, 0.1, 0.05, 0.1, 0.05]
+    field :rounds, :integer, default: 15
+    field :interest_rate, :float, default: 0.05
+    field :endowment, :integer, default: 800
+    field :initial_shares, :integer, default: 10
+    field :dividend_schedule, {:array, :integer}, default: [1, 2, 3, 4, 5]
   end
 
   @doc false

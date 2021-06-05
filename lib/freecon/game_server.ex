@@ -41,14 +41,14 @@ defmodule Freecon.GameServer do
 
   @impl true
   def init(game) do
-    Process.send_after(self(), :end_round, 60_000)
+    Process.send_after(self(), :end_round, 45_000)
 
     game = advance_round(game)
 
     game =
       struct(
         game,
-        round_ends: Timex.shift(Timex.now(), seconds: 60)
+        round_ends: Timex.shift(Timex.now(), seconds: 45)
       )
 
     {:ok, game}
@@ -110,10 +110,10 @@ defmodule Freecon.GameServer do
       game =
         struct(
           game,
-          round_ends: Timex.shift(Timex.now(), seconds: 60)
+          round_ends: Timex.shift(Timex.now(), seconds: 45)
         )
 
-      Process.send_after(self(), :end_round, 60_000)
+      Process.send_after(self(), :end_round, 45_000)
       {:noreply, game}
     else
       game = complete_round(game)
@@ -347,8 +347,7 @@ defmodule Freecon.GameServer do
             cash: values.cash,
             interest: round(values.cash * (game.parameters["interest_rate"] + 1) - values.cash),
             shares: values.shares,
-            dividends:
-              round(values.shares * Enum.at(game.parameters["dividend_schedule"], game.round - 1))
+            dividends: round(calculate_dividends(game.parameters["dividend_schedule"], values.shares))
           })
 
         {id,
@@ -357,7 +356,7 @@ defmodule Freecon.GameServer do
            | cash:
                round(
                  values.cash * (game.parameters["interest_rate"] + 1) +
-                   values.shares * Enum.at(game.parameters["dividend_schedule"], game.round - 1)
+                   calculate_dividends(game.parameters["dividend_schedule"], values.shares)
                )
          }}
       end)
@@ -427,5 +426,13 @@ defmodule Freecon.GameServer do
 
   defp available_funds(game, participant, price, quantity) do
     game.participants[participant.id]["funds"] >= price * quantity
+  end
+
+  defp calculate_dividends(schedule, shares) do
+    if shares > 0 do
+      Enum.sum(Enum.map(1..shares, fn(_) -> Enum.random(schedule) end))
+    else
+      0
+    end
   end
 end
