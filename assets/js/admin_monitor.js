@@ -4,8 +4,6 @@ let chart_container = document.getElementById('expected_values_and_transactions_
 if (chart_container != null) {
   var myChart = echarts.init(chart_container);
 
-
-
   myChart.setOption({
     legend: {
       data: ['Expected Values', 'Transactions']
@@ -18,7 +16,7 @@ if (chart_container != null) {
     },
     xAxis: {
       type: 'category',
-      data: ['Round 1', 'Round 2', 'Round 3', 'Round 4', 'Round 5', 'Round 6', 'Round 7', 'Round 8', 'Round 9', 'Round 10']
+      data: Array(window.game_review_chart.rounds).fill(0).map( (ele, index) => 'Round ' + (index + 1))
     },
     yAxis: {
       type: 'value',
@@ -28,9 +26,19 @@ if (chart_container != null) {
     series: [
       {
         name: 'Expected Values',
+        data: window.game_review_chart.expected_values,
         type: 'line',
-        step: 'end',
-        data: window.game_review_chart.expected_values
+        emphasis: {
+          label: {
+            show: true,
+            fontWeight: 'bolder',
+            backgroundColor: 'white',
+            formatter: function (param) {
+              return param.data;
+            },
+            position: 'top'
+          }
+        }
       },
       {
         name: 'Transactions',

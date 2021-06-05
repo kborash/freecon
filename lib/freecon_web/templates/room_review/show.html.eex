@@ -8,6 +8,7 @@
   window.game_review_chart = {};
   window.game_review_chart.expected_values = <%= @expected_values %>;
   window.game_review_chart.transactions = <%= @transactions %>;
+  window.game_review_chart.rounds = <%= @rounds %>;
 </script>
 
 <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/professor.js") %>"></script>

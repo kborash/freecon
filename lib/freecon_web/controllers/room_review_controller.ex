@@ -10,7 +10,8 @@ defmodule FreeconWeb.RoomReviewController do
 
     render(conn, "show.html",
       transactions: Jason.encode!(Trades.all_trades_by_round(game.id)),
-      expected_values: Jason.encode!(Games.expected_value(game.id))
+      expected_values: Jason.encode!(Games.expected_value(game.id)),
+      rounds: game.parameters["rounds"]
     )
   end
 end
